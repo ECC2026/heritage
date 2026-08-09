@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>svg-render</title>
+  <style>
+    html, body {
+      width: 64px;
+      height: 64px;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    body {
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    img {
+      width: 64px;
+      height: 64px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <img id="icon" alt="tabbar icon" />
+  <script>
+    const params = new URLSearchParams(window.location.search)
+    const icon = params.get('icon')
+    if (icon) {
+      document.getElementById('icon').src = decodeURIComponent(icon)
+    }
+  </script>
+</body>
+</html>

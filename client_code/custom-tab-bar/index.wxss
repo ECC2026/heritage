@@ -1,0 +1,41 @@
+@import "../components/bottom-nav.wxss";
+
+.custom-tabbar {
+  position: fixed;
+  left: 18rpx;
+  right: 18rpx;
+  bottom: calc(18rpx + env(safe-area-inset-bottom));
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14rpx 10rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 250, 244, 0.98);
+  box-shadow: 0 -8rpx 28rpx rgba(82, 54, 38, 0.08);
+}
+
+.custom-tabbar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 10rpx 0 6rpx;
+  color: #8f7b70;
+}
+
+.custom-tabbar__item--active {
+  color: #a6472d;
+}
+
+.custom-tabbar__icon {
+  font-size: 42rpx;
+  line-height: 1;
+}
+
+.custom-tabbar__text {
+  font-size: 22rpx;
+  line-height: 1.2;
+}

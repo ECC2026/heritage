@@ -1,0 +1,231 @@
+<template>
+  <view class="app-page favorites-page" style="margin-top: 20px;">
+    <page-header title="我的收藏" />
+
+    <view class="section-card summary-card">
+      <view class="section-head">
+        <text class="section-title">我的收藏</text>
+        <text class="section-note">常看内容快速直达</text>
+      </view>
+      <view class="filter-row">
+        <view
+          v-for="item in filters"
+          :key="item.value"
+          class="soft-pill filter-pill"
+          :class="{ active: currentType === item.value }"
+          @click="switchType(item.value)"
+        >
+          {{ item.label }}
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card">
+      <view v-if="loading" class="empty-block">
+        <text>正在加载收藏内容...</text>
+      </view>
+
+      <view v-else-if="favorites.length">
+        <view v-for="item in favorites" :key="item.id" class="favorite-card">
+          <image :src="normalizeImage(item.cover)" class="favorite-cover" mode="aspectFill"></image>
+          <view class="favorite-body">
+            <view class="favorite-tag">{{ typeText(item.type) }}</view>
+            <text class="favorite-title" @click="openFavorite(item)">{{ item.title }}</text>
+            <text class="favorite-meta">{{ item.subTitle || '已收藏内容' }}</text>
+            <text class="favorite-summary">{{ shortText(item.summary, 52) || '点击查看详情' }}</text>
+            <text class="favorite-time">收藏于 {{ formatDateTime(item.createTime) }}</text>
+            <view class="favorite-actions">
+              <view class="soft-pill action-pill" @click="openFavorite(item)">查看详情</view>
+              <view class="soft-pill action-pill danger" @click="removeFavorite(item)">取消收藏</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view v-else class="empty-block">
+        <text>当前分类下还没有收藏内容。</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import PageHeader from '@/components/page-header.vue'
+import { getMyFavorites, toggleFavorite } from '@/common/request/api.js'
+import { requireLogin } from '@/common/session.js'
+import { formatDateTime, normalizeImage, shortText } from '@/common/utils.js'
+
+export default {
+  components: {
+    PageHeader
+  },
+  data() {
+    return {
+      loading: false,
+      currentType: '',
+      favorites: [],
+      filters: [
+        { label: '全部', value: '' },
+        { label: '资讯', value: 'news' },
+        { label: '商品', value: 'product' },
+        { label: '活动', value: 'activity' },
+        { label: '帖子', value: 'post' }
+      ]
+    }
+  },
+  onShow() {
+    if (!requireLogin()) {
+      return
+    }
+    this.loadFavorites()
+  },
+  methods: {
+    formatDateTime,
+    normalizeImage,
+    shortText,
+    async loadFavorites() {
+      this.loading = true
+      try {
+        const result = await getMyFavorites({
+          page: 1,
+          size: 50,
+          type: this.currentType
+        })
+        this.favorites = result && result.list ? result.list : []
+      } catch (error) {
+        this.favorites = []
+      } finally {
+        this.loading = false
+      }
+    },
+    switchType(type) {
+      this.currentType = type
+      this.loadFavorites()
+    },
+    typeText(type) {
+      const map = {
+        news: '资讯',
+        product: '商品',
+        activity: '活动',
+        post: '帖子'
+      }
+      return map[type] || '内容'
+    },
+    openFavorite(item) {
+      const routeMap = {
+        news: `/pages/news/detail?id=${item.targetId}`,
+        product: `/pages/shop/detail?id=${item.targetId}`,
+        activity: `/pages/activity/detail?id=${item.targetId}`
+      }
+      if (item.type === 'post') {
+        uni.navigateTo({ url: `/pages/community/detail?id=${item.targetId}` })
+        return
+      }
+      const url = routeMap[item.type]
+      if (url) {
+        uni.navigateTo({ url })
+      }
+    },
+    async removeFavorite(item) {
+      await toggleFavorite({
+        type: item.type,
+        targetId: item.targetId
+      })
+      uni.showToast({
+        title: '已取消收藏',
+        icon: 'none'
+      })
+      this.loadFavorites()
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.favorites-page {
+  padding: 24rpx;
+  padding-bottom: 48rpx;
+  background:
+    radial-gradient(circle at top right, rgba(166, 71, 45, 0.14), transparent 30%),
+    linear-gradient(180deg, #f8efe7 0%, #f4f1ec 100%);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.filter-pill.active {
+  background: #a6472d;
+  color: #fff;
+}
+
+.favorite-card {
+  display: flex;
+  gap: 18rpx;
+  padding: 24rpx 0;
+  border-top: 1rpx solid #f0e1d8;
+}
+
+.favorite-card:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.favorite-cover {
+  width: 176rpx;
+  height: 176rpx;
+  border-radius: 20rpx;
+  background: #f1e4d7;
+  flex-shrink: 0;
+}
+
+.favorite-body {
+  flex: 1;
+}
+
+.favorite-tag {
+  display: inline-flex;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: #f5e6dc;
+  font-size: 22rpx;
+  color: #a6472d;
+}
+
+.favorite-title {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #2f1f18;
+  line-height: 1.5;
+}
+
+.favorite-meta,
+.favorite-summary,
+.favorite-time {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #8e7064;
+}
+
+.favorite-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+  flex-wrap: wrap;
+}
+
+.action-pill {
+  min-width: 148rpx;
+  justify-content: center;
+}
+
+.action-pill.danger {
+  color: #b24a3c;
+}
+</style>
