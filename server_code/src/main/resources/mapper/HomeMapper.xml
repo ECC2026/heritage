@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.server_code.mapper.HomeMapper">
+
+    <select id="selectActiveCities" resultType="com.example.server_code.dto.home.CityDto">
+        SELECT id,
+               code,
+               name,
+               province_code AS provinceCode,
+               province_name AS provinceName,
+               is_default AS isDefault
+        FROM city
+        WHERE status = 1
+        ORDER BY is_default DESC, sort ASC, id ASC
+    </select>
+
+    <select id="selectCityByCode" resultType="com.example.server_code.dto.home.CityDto">
+        SELECT id,
+               code,
+               name,
+               province_code AS provinceCode,
+               province_name AS provinceName,
+               is_default AS isDefault
+        FROM city
+        WHERE status = 1
+          AND code = #{code}
+        LIMIT 1
+    </select>
+
+    <select id="selectDefaultCity" resultType="com.example.server_code.dto.home.CityDto">
+        SELECT id,
+               code,
+               name,
+               province_code AS provinceCode,
+               province_name AS provinceName,
+               is_default AS isDefault
+        FROM city
+        WHERE status = 1
+        ORDER BY is_default DESC, sort ASC, id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectHeritageCategories" resultType="com.example.server_code.dto.home.CategoryDto">
+        SELECT id,
+               code,
+               name,
+               icon,
+               description,
+               parent_id AS parentId,
+               sort
+        FROM category
+        WHERE biz_type = 'HERITAGE'
+          AND status = 1
+        ORDER BY sort ASC, id ASC
+    </select>
+
+    <select id="selectHeritageLevels" resultType="com.example.server_code.dto.home.HeritageLevelDto">
+        SELECT id, code, name, sort
+        FROM heritage_level
+        WHERE status = 1
+        ORDER BY sort ASC, id ASC
+    </select>
+
+    <select id="selectEnabledBanners" resultType="com.example.server_code.dto.home.BannerDto">
+        SELECT id, title, image, link, link_type AS linkType, sort
+        FROM banner
+        WHERE status = 1
+        ORDER BY sort ASC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectRecommendedProjects"
+            resultType="com.example.server_code.dto.home.HeritageProjectSummaryDto">
+        SELECT hp.id,
+               hp.name,
+               hp.cover,
+               hp.description AS summary,
+               hp.category_id AS categoryId,
+               COALESCE(c.name, hp.category) AS category,
+               hp.level_code AS levelCode,
+               COALESCE(hl.name, hp.level) AS level,
+               hp.region_code AS regionCode,
+               hp.region,
+               hp.official_code AS officialCode,
+               hp.recognition_authority AS recognitionAuthority,
+               hp.recognition_batch AS recognitionBatch,
+               hp.recognized_at AS recognizedAt
+        FROM heritage_project hp
+        LEFT JOIN category c
+               ON c.id = hp.category_id
+              AND c.biz_type = 'HERITAGE'
+        LEFT JOIN heritage_level hl
+               ON hl.code = hp.level_code
+              AND hl.status = 1
+        WHERE hp.status = 1
+          AND hp.is_recommend = 1
+        <if test="regionCode != null and regionCode != ''">
+          AND hp.region_code = #{regionCode}
+        </if>
+        ORDER BY hp.recommend_sort ASC, hp.sort DESC, hp.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectRecommendedInheritors"
+            resultType="com.example.server_code.dto.home.InheritorSummaryDto">
+        SELECT id,
+               display_name AS displayName,
+               portrait,
+               profile,
+               skill_type AS skillType,
+               region_code AS regionCode
+        FROM inheritor
+        WHERE audit_status = 1
+          AND status = 1
+          AND display_status = 1
+          AND is_recommend = 1
+        ORDER BY recommend_sort ASC, published_at DESC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectRecommendedProducts"
+            resultType="com.example.server_code.dto.home.ProductSummaryDto">
+        SELECT p.id,
+               p.name,
+               p.cover,
+               p.description AS summary,
+               p.category_id AS categoryId,
+               c.name AS category,
+               p.price,
+               p.original_price AS originalPrice,
+               p.sales
+        FROM product p
+        LEFT JOIN category c ON c.id = p.category_id
+        WHERE p.status = 1
+          AND p.is_recommend = 1
+        ORDER BY p.sales DESC, p.create_time DESC, p.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectWeeklyCourses"
+            resultType="com.example.server_code.dto.home.CourseSummaryDto">
+        SELECT ranked.id,
+               ranked.title,
+               ranked.cover,
+               ranked.summary,
+               ranked.inheritorId,
+               ranked.inheritorName,
+               ranked.heritageProjectId,
+               ranked.categoryId,
+               ranked.category,
+               ranked.serviceMode,
+               ranked.price,
+               ranked.durationMinutes,
+               ranked.cityCode,
+               ranked.location,
+               ranked.nextSessionId,
+               ranked.nextStartTime,
+               ranked.nextEndTime,
+               ranked.remaining
+        FROM (
+            SELECT c.id,
+                   c.title,
+                   c.cover,
+                   c.summary,
+                   c.inheritor_id AS inheritorId,
+                   i.display_name AS inheritorName,
+                   c.heritage_project_id AS heritageProjectId,
+                   c.category_id AS categoryId,
+                   category.name AS category,
+                   c.service_mode AS serviceMode,
+                   c.price,
+                   c.duration_minutes AS durationMinutes,
+                   COALESCE(cs.city_code, c.city_code) AS cityCode,
+                   COALESCE(cs.location, c.location) AS location,
+                   cs.id AS nextSessionId,
+                   cs.start_time AS nextStartTime,
+                   cs.end_time AS nextEndTime,
+                   GREATEST(cs.capacity - cs.booked_count, 0) AS remaining,
+                   c.recommend_sort AS recommendSort,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY c.id
+                       ORDER BY cs.start_time ASC, cs.id ASC
+                   ) AS rowNumber
+            FROM course c
+            JOIN course_session cs
+              ON cs.course_id = c.id
+             AND cs.status = 1
+             AND cs.start_time &gt;= #{weekStart}
+             AND cs.start_time &lt; #{weekEnd}
+            LEFT JOIN inheritor i ON i.id = c.inheritor_id
+            LEFT JOIN category ON category.id = c.category_id
+            WHERE c.audit_status = 1
+              AND c.publish_status = 1
+              AND c.is_recommend = 1
+            <if test="cityCode != null and cityCode != ''">
+              AND COALESCE(cs.city_code, c.city_code) = #{cityCode}
+            </if>
+        ) ranked
+        WHERE ranked.rowNumber = 1
+        ORDER BY ranked.recommendSort ASC, ranked.nextStartTime ASC, ranked.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectRecommendedActivities"
+            resultType="com.example.server_code.dto.home.ActivitySummaryDto">
+        SELECT id,
+               name,
+               cover,
+               description AS summary,
+               city_code AS cityCode,
+               COALESCE(address_detail, location) AS location,
+               start_time AS startTime,
+               end_time AS endTime,
+               organizer_name AS organizerName,
+               limit_count AS limitCount,
+               signup_count AS signupCount,
+               GREATEST(limit_count - signup_count, 0) AS remaining
+        FROM activity
+        WHERE status = 1
+          AND is_recommend = 1
+          AND COALESCE(end_time, start_time) &gt;= #{now}
+        <if test="cityCode != null and cityCode != ''">
+          AND city_code = #{cityCode}
+        </if>
+        ORDER BY recommend_sort ASC, start_time ASC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectHomeNews" resultType="com.example.server_code.dto.home.NewsSummaryDto">
+        SELECT id,
+               title,
+               cover,
+               content AS summary,
+               category,
+               author,
+               source,
+               create_time AS createTime
+        FROM news
+        WHERE status = 1
+        ORDER BY is_top DESC, create_time DESC, id DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

@@ -33,35 +33,35 @@ export default {
           label: '首页',
           url: '/pages/index/index',
           iconClass: 'tn-icon-home',
-          activeIconClass: 'tn-icon-home-fill'
+          activeIconClass: 'tn-icon-home'
+        },
+        {
+          key: 'community',
+          label: '非遗',
+          url: '/pages/community/index',
+          iconClass: 'tn-icon-floral',
+          activeIconClass: 'tn-icon-floral'
         },
         {
           key: 'shop',
-          label: '文创',
+          label: '商城',
           url: '/pages/shop/list',
           iconClass: 'tn-icon-shop',
-          activeIconClass: 'tn-icon-shop-fill'
+          activeIconClass: 'tn-icon-shop'
         },
         {
           key: 'activity',
           label: '活动',
           url: '/pages/activity/list',
-          iconClass: 'tn-icon-activity',
-          activeIconClass: 'tn-icon-task-fill'
-        },
-        {
-          key: 'community',
-          label: '社区',
-          url: '/pages/community/index',
-          iconClass: 'tn-icon-chat',
-          activeIconClass: 'tn-icon-my-chat-fill'
+          iconClass: 'tn-icon-calendar',
+          activeIconClass: 'tn-icon-calendar'
         },
         {
           key: 'profile',
           label: '我的',
           url: '/pages/profile/index',
           iconClass: 'tn-icon-my',
-          activeIconClass: 'tn-icon-my-fill'
+          activeIconClass: 'tn-icon-my'
         }
       ]
     }
@@ -84,18 +84,19 @@ export default {
 
 .bottom-nav {
   position: fixed;
-  left: 20rpx;
-  right: 20rpx;
-  bottom: calc(18rpx + env(safe-area-inset-bottom));
+  left: $ichip-space-2;
+  right: $ichip-space-2;
+  bottom: calc(12rpx + env(safe-area-inset-bottom));
   z-index: 999;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14rpx 10rpx;
-  border-radius: 32rpx;
-  background: rgba(255, 251, 246, 0.98);
-  box-shadow: 0 10rpx 30rpx rgba(77, 47, 31, 0.12);
-  backdrop-filter: blur(10rpx);
+  height: 108rpx;
+  padding: 0 8rpx;
+  border: 1rpx solid rgba(100, 121, 110, 0.12);
+  border-radius: 24rpx;
+  background: $ichip-color-surface;
+  box-shadow: 0 6rpx 24rpx rgba(44, 39, 35, 0.06);
 }
 
 .bottom-nav__item {
@@ -104,18 +105,17 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  padding: 10rpx 0 8rpx;
-  color: #8e7769;
-  transition: all 0.2s ease;
+  gap: 6rpx;
+  height: 100%;
+  color: $ichip-color-nav-inactive;
 }
 
 .bottom-nav__item--active {
-  color: #a6472d;
+  color: $ichip-color-nav-active;
 }
 
 .bottom-nav__icon {
-  font-size: 42rpx;
+  font-size: 40rpx;
   line-height: 1;
 }
 

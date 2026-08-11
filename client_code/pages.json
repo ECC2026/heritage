@@ -7,6 +7,12 @@
       }
     },
     {
+      "path": "pages/search/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/login/login",
       "style": {
         "navigationStyle": "custom"
@@ -128,10 +134,10 @@
     }
   ],
   "tabBar": {
-    "color": "#8f7b70",
-    "selectedColor": "#a6472d",
+    "color": "#9c978f",
+    "selectedColor": "#64796e",
     "borderStyle": "white",
-    "backgroundColor": "#fffaf4",
+    "backgroundColor": "#fbf8f2",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -140,8 +146,14 @@
         "selectedIconPath": "static/tabbar/home-active.png"
       },
       {
+        "pagePath": "pages/community/index",
+        "text": "非遗",
+        "iconPath": "static/tabbar/community.png",
+        "selectedIconPath": "static/tabbar/community-active.png"
+      },
+      {
         "pagePath": "pages/shop/list",
-        "text": "文创",
+        "text": "商城",
         "iconPath": "static/tabbar/shop.png",
         "selectedIconPath": "static/tabbar/shop-active.png"
       },
@@ -150,12 +162,6 @@
         "text": "活动",
         "iconPath": "static/tabbar/activity.png",
         "selectedIconPath": "static/tabbar/activity-active.png"
-      },
-      {
-        "pagePath": "pages/community/index",
-        "text": "社区",
-        "iconPath": "static/tabbar/community.png",
-        "selectedIconPath": "static/tabbar/community-active.png"
       },
       {
         "pagePath": "pages/profile/index",

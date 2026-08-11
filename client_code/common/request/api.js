@@ -28,6 +28,43 @@ export function getUserInfo() {
   })
 }
 
+// 首页聚合数据
+export function getHome(params = {}) {
+  return request({
+    url: '/home',
+    data: params
+  })
+}
+
+// 首页城市列表
+export function getCities() {
+  return request({
+    url: '/cities'
+  })
+}
+
+// 非遗发现筛选项
+export function getHeritageCategories(params = {}) {
+  return request({
+    url: '/heritage-categories',
+    data: params
+  })
+}
+
+export function getHeritageLevels() {
+  return request({
+    url: '/heritage-levels'
+  })
+}
+
+// 全局搜索
+export function searchContent(params) {
+  return request({
+    url: '/search',
+    data: params
+  })
+}
+
 // 更新用户信息
 export function updateUserInfo(data) {
   return request({

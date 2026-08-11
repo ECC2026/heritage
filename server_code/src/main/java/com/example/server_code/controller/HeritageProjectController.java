@@ -3,8 +3,10 @@ package com.example.server_code.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.server_code.common.Result;
+import com.example.server_code.dto.home.HeritageProjectSummaryDto;
 import com.example.server_code.entity.HeritageProject;
 import com.example.server_code.mapper.HeritageProjectMapper;
+import com.example.server_code.service.HomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,9 @@ public class HeritageProjectController {
     
     @Autowired
     private HeritageProjectMapper heritageProjectMapper;
+
+    @Autowired
+    private HomeService homeService;
     
     /**
      * 分页查询非遗项目列表。支持按名称模糊搜索、按状态筛选，按sort字段降序排列。
@@ -68,6 +73,20 @@ public class HeritageProjectController {
         wrapper.orderByDesc("sort");
         List<HeritageProject> list = heritageProjectMapper.selectList(wrapper);
         return Result.success(list);
+    }
+
+    /**
+     * 获取首页推荐非遗项目。只返回启用且已推荐的公开摘要。
+     */
+    @GetMapping("/recommended")
+    public Result<List<HeritageProjectSummaryDto>> getRecommendedProjects(
+            @RequestParam(defaultValue = "6") Integer limit,
+            @RequestParam(required = false) String regionCode) {
+        try {
+            return Result.success(homeService.getRecommendedProjects(limit, regionCode));
+        } catch (IllegalArgumentException exception) {
+            return Result.error(400, exception.getMessage());
+        }
     }
     
     /**

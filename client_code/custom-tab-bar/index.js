@@ -6,31 +6,31 @@ Component({
         pagePath: '/pages/index/index',
         text: '首页',
         iconClass: 'tn-icon-home',
-        activeIconClass: 'tn-icon-home-fill'
+        activeIconClass: 'tn-icon-home'
+      },
+      {
+        pagePath: '/pages/community/index',
+        text: '非遗',
+        iconClass: 'tn-icon-floral',
+        activeIconClass: 'tn-icon-floral'
       },
       {
         pagePath: '/pages/shop/list',
-        text: '文创',
+        text: '商城',
         iconClass: 'tn-icon-shop',
-        activeIconClass: 'tn-icon-shop-fill'
+        activeIconClass: 'tn-icon-shop'
       },
       {
         pagePath: '/pages/activity/list',
         text: '活动',
-        iconClass: 'tn-icon-activity',
-        activeIconClass: 'tn-icon-task-fill'
-      },
-      {
-        pagePath: '/pages/community/index',
-        text: '社区',
-        iconClass: 'tn-icon-chat',
-        activeIconClass: 'tn-icon-my-chat-fill'
+        iconClass: 'tn-icon-calendar',
+        activeIconClass: 'tn-icon-calendar'
       },
       {
         pagePath: '/pages/profile/index',
         text: '我的',
         iconClass: 'tn-icon-my',
-        activeIconClass: 'tn-icon-my-fill'
+        activeIconClass: 'tn-icon-my'
       }
     ]
   },

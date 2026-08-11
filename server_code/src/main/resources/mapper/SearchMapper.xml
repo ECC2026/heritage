@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.server_code.mapper.SearchMapper">
+
+    <sql id="searchUnion">
+        <trim suffixOverrides="UNION ALL">
+            <if test="type == 'all' or type == 'heritage_project'">
+                SELECT 'heritage_project' AS type,
+                       hp.id,
+                       hp.name AS title,
+                       hp.cover,
+                       hp.description AS summary,
+                       COALESCE(hc.name, hp.category) AS category,
+                       hp.level_code AS level_code,
+                       hp.region_code AS region_code,
+                       NULL AS price,
+                       NULL AS start_time,
+                       hp.recommend_sort AS sort_value
+                FROM heritage_project hp
+                LEFT JOIN category hc
+                       ON hc.id = hp.category_id
+                      AND hc.biz_type = 'HERITAGE'
+                WHERE hp.status = 1
+                  AND (
+                      hp.name LIKE CONCAT('%', #{keyword}, '%')
+                      OR hp.description LIKE CONCAT('%', #{keyword}, '%')
+                      OR hp.category LIKE CONCAT('%', #{keyword}, '%')
+                      OR hp.region LIKE CONCAT('%', #{keyword}, '%')
+                      OR hp.official_code LIKE CONCAT('%', #{keyword}, '%')
+                  )
+                <if test="categoryId != null">
+                  AND hp.category_id = #{categoryId}
+                </if>
+                <if test="levelCode != null and levelCode != ''">
+                  AND hp.level_code = #{levelCode}
+                </if>
+                <if test="regionCode != null and regionCode != ''">
+                  AND hp.region_code = #{regionCode}
+                </if>
+                UNION ALL
+            </if>
+
+            <if test="type == 'all' or type == 'inheritor'">
+                SELECT 'inheritor' AS type,
+                       i.id,
+                       i.display_name AS title,
+                       i.portrait AS cover,
+                       i.profile AS summary,
+                       i.skill_type AS category,
+                       NULL AS level_code,
+                       i.region_code AS region_code,
+                       NULL AS price,
+                       NULL AS start_time,
+                       i.recommend_sort AS sort_value
+                FROM inheritor i
+                WHERE i.audit_status = 1
+                  AND i.status = 1
+                  AND i.display_status = 1
+                  AND (
+                      i.display_name LIKE CONCAT('%', #{keyword}, '%')
+                      OR i.profile LIKE CONCAT('%', #{keyword}, '%')
+                      OR i.skill_type LIKE CONCAT('%', #{keyword}, '%')
+                  )
+                <if test="categoryId != null or (levelCode != null and levelCode != '')">
+                  AND 1 = 0
+                </if>
+                <if test="regionCode != null and regionCode != ''">
+                  AND i.region_code = #{regionCode}
+                </if>
+                UNION ALL
+            </if>
+
+            <if test="type == 'all' or type == 'product'">
+                SELECT 'product' AS type,
+                       p.id,
+                       p.name AS title,
+                       p.cover,
+                       p.description AS summary,
+                       pc.name AS category,
+                       NULL AS level_code,
+                       NULL AS region_code,
+                       p.price,
+                       NULL AS start_time,
+                       (0 - COALESCE(p.sales, 0)) AS sort_value
+                FROM product p
+                LEFT JOIN category pc ON pc.id = p.category_id
+                WHERE p.status = 1
+                  AND (
+                      p.name LIKE CONCAT('%', #{keyword}, '%')
+                      OR p.description LIKE CONCAT('%', #{keyword}, '%')
+                      OR pc.name LIKE CONCAT('%', #{keyword}, '%')
+                  )
+                <if test="categoryId != null">
+                  AND p.category_id = #{categoryId}
+                </if>
+                <if test="(levelCode != null and levelCode != '') or (regionCode != null and regionCode != '')">
+                  AND 1 = 0
+                </if>
+                UNION ALL
+            </if>
+
+            <if test="type == 'all' or type == 'course'">
+                SELECT 'course' AS type,
+                       c.id,
+                       c.title,
+                       c.cover,
+                       COALESCE(c.summary, c.description) AS summary,
+                       cc.name AS category,
+                       NULL AS level_code,
+                       c.city_code AS region_code,
+                       c.price,
+                       (
+                           SELECT MIN(cs.start_time)
+                           FROM course_session cs
+                           WHERE cs.course_id = c.id
+                             AND cs.status = 1
+                             AND cs.start_time &gt;= NOW()
+                       ) AS start_time,
+                       c.recommend_sort AS sort_value
+                FROM course c
+                LEFT JOIN category cc ON cc.id = c.category_id
+                WHERE c.audit_status = 1
+                  AND c.publish_status = 1
+                  AND (
+                      c.title LIKE CONCAT('%', #{keyword}, '%')
+                      OR c.summary LIKE CONCAT('%', #{keyword}, '%')
+                      OR c.description LIKE CONCAT('%', #{keyword}, '%')
+                      OR cc.name LIKE CONCAT('%', #{keyword}, '%')
+                  )
+                <if test="categoryId != null">
+                  AND c.category_id = #{categoryId}
+                </if>
+                <if test="levelCode != null and levelCode != ''">
+                  AND 1 = 0
+                </if>
+                <if test="regionCode != null and regionCode != ''">
+                  AND c.city_code = #{regionCode}
+                </if>
+                UNION ALL
+            </if>
+        </trim>
+    </sql>
+
+    <select id="countSearchResults" resultType="long">
+        SELECT COUNT(*)
+        FROM (
+            <include refid="searchUnion"/>
+        ) search_result
+    </select>
+
+    <select id="selectSearchResults" resultType="com.example.server_code.dto.search.SearchItemDto">
+        SELECT type,
+               id,
+               title,
+               cover,
+               summary,
+               category,
+               level_code AS levelCode,
+               region_code AS regionCode,
+               price,
+               start_time AS startTime
+        FROM (
+            <include refid="searchUnion"/>
+        ) search_result
+        ORDER BY sort_value ASC, type ASC, id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+</mapper>

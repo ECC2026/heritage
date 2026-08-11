@@ -1,9 +1,9 @@
 <template>
-  <view class="page-header">
+  <view class="page-header" :class="{ 'page-header--quiet': variant === 'quiet' }">
     <view class="page-header__safe"></view>
     <view class="page-header__bar">
       <view class="page-header__action" @tap="handleBack">
-        <text class="page-header__back-icon">返回</text>
+        <text class="page-header__back-icon">{{ variant === 'quiet' ? '←' : '返回' }}</text>
       </view>
       <text class="page-header__title">{{ title }}</text>
       <view class="page-header__placeholder"></view>
@@ -18,6 +18,10 @@ export default {
     title: {
       type: String,
       default: '页面'
+    },
+    variant: {
+      type: String,
+      default: 'default'
     }
   },
   methods: {
@@ -82,5 +86,35 @@ export default {
   font-size: 32rpx;
   font-weight: 700;
   color: #2f1f18;
+}
+
+.page-header--quiet {
+  padding-bottom: 8rpx;
+  border-bottom: 1rpx solid $ichip-color-line;
+  background: $ichip-color-surface;
+}
+
+.page-header--quiet .page-header__action,
+.page-header--quiet .page-header__placeholder {
+  width: 164rpx;
+}
+
+.page-header--quiet .page-header__action {
+  justify-content: flex-start;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-header--quiet .page-header__back-icon {
+  color: $ichip-color-nav-active;
+  font-size: 38rpx;
+  font-weight: $ichip-weight-regular;
+}
+
+.page-header--quiet .page-header__title {
+  color: $ichip-color-ink;
+  font-size: 29rpx;
+  font-weight: $ichip-weight-medium;
 }
 </style>
