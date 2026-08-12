@@ -17,19 +17,10 @@
       <view class="search-symbol"></view>
     </view>
 
-    <!-- 首页主视觉：当前瓶器和山雾由 CSS 绘制，后续可整体替换为 /static/home/ 下的设计图。 -->
+    <!-- 首页主视觉：图片统一存放在 /static/home/，青铜兽作为独立图层叠放在右下角。 -->
     <view class="hero-art">
-      <view class="hero-copy">
-        <text class="hero-caption">数字非遗 · 东方生活美学</text>
-        <text class="hero-en">CHINA</text>
-        <text class="hero-year">HERITAGE ARCHIVE</text>
-      </view>
-      <view class="hero-mist hero-mist--one"></view>
-      <view class="hero-mist hero-mist--two"></view>
-      <view class="vase vase--far"><view class="vase-neck"></view></view>
-      <view class="vase vase--left"><view class="vase-neck"></view></view>
-      <view class="vase vase--main"><view class="vase-neck"></view><view class="vase-branch"></view></view>
-      <view class="vase vase--right"><view class="vase-neck"></view></view>
+      <!-- 与青铜兽相同，使用动态绑定避免编译器生成不存在的 /assets 哈希路径。 -->
+      <image class="hero-image" :src="heroImage" mode="aspectFill"></image>
       <!-- 使用运行时绑定，防止 UniApp 将 /static 路径改写成未生成的 /assets 哈希路径。 -->
       <image class="hero-mascot" :src="mascotImage" mode="aspectFit"></image>
     </view>
@@ -188,6 +179,9 @@ import { formatDateTime, formatPrice, normalizeImage, shortText } from '@/common
 // 保存用户最近选择的城市，重新进入首页时优先恢复该城市。
 const CITY_STORAGE_KEY = 'home-city-code'
 
+// 首页上方主视觉成品。原图按当前容器比例处理为 1500×788，并压缩为小程序友好的 JPG。
+const HERO_IMAGE = '/static/home/home-hero.jpg'
+
 //
 // 首页静态图片统一放在 /static/home/。
 // 此地址存入 data 后通过 :src 绑定，避免 UniApp 编译器把固定模板地址改写为
@@ -267,6 +261,8 @@ export default {
       // 首页主请求失败使用 loadError；城市附属请求失败使用 cityError。
       loadError: '',
       cityError: '',
+      // 主视觉也通过 data 动态绑定，避免静态模板地址被编译成错误的哈希资源路径。
+      heroImage: HERO_IMAGE,
       // 青铜兽使用动态地址，原因见 MASCOT_IMAGE 上方注释。
       mascotImage: MASCOT_IMAGE,
       activeRecommendation: 'today',
@@ -1364,154 +1360,14 @@ $home-ink: #24423f;
 .hero-art {
   height: 394rpx;
   overflow: visible;
-  background:
-    linear-gradient(180deg, rgba(247, 248, 241, 0.98) 0%, rgba(240, 246, 236, 0.7) 52%, rgba(210, 232, 217, 0.92) 100%);
+  background: #f3f1eb;
 }
 
-.hero-copy {
-  position: absolute;
-  top: 36rpx;
-  left: 38rpx;
-  z-index: 4;
-  display: flex;
-  flex-direction: column;
-  color: #20312f;
-}
-
-.hero-caption {
-  width: 230rpx;
-  color: #65746f;
-  font-family: Georgia, serif;
-  font-size: 15rpx;
-  letter-spacing: 1rpx;
-  line-height: 1.45;
-}
-
-.hero-en {
-  margin-top: 10rpx;
-  font-family: Georgia, serif;
-  font-size: 43rpx;
-  letter-spacing: 2rpx;
-  line-height: 1;
-}
-
-.hero-year {
-  margin-top: 11rpx;
-  font-family: Georgia, serif;
-  font-size: 15rpx;
-  letter-spacing: 6rpx;
-}
-
-.hero-mist {
-  position: absolute;
-  right: -60rpx;
-  bottom: -80rpx;
-  width: 680rpx;
-  height: 260rpx;
-  transform: rotate(-4deg);
-  border-radius: 50%;
-  background: rgba(208, 227, 216, 0.8);
-  filter: blur(14rpx);
-}
-
-.hero-mist--two {
-  right: 240rpx;
-  bottom: -125rpx;
-  width: 520rpx;
-  height: 260rpx;
-  background: rgba(244, 247, 237, 0.94);
-}
-
-.vase {
-  position: absolute;
-  bottom: -18rpx;
-  z-index: 2;
-  width: 118rpx;
-  height: 168rpx;
-  border: 2rpx solid rgba(22, 119, 110, 0.28);
-  border-radius: 42% 42% 32% 32% / 20% 20% 56% 56%;
-  background:
-    radial-gradient(circle at 68% 27%, rgba(255, 255, 255, 0.84) 0 8%, transparent 9%),
-    linear-gradient(90deg, rgba(45, 134, 122, 0.14), rgba(216, 240, 227, 0.88) 44%, rgba(34, 122, 112, 0.3));
-  box-shadow: inset -14rpx -10rpx 26rpx rgba(20, 107, 99, 0.14), 0 14rpx 28rpx rgba(58, 105, 93, 0.08);
-}
-
-.vase-neck {
-  position: absolute;
-  top: -52rpx;
-  left: 31rpx;
-  width: 52rpx;
-  height: 65rpx;
-  border: 2rpx solid rgba(22, 119, 110, 0.28);
-  border-radius: 10rpx 10rpx 19rpx 19rpx;
-  background: linear-gradient(90deg, rgba(54, 140, 128, 0.26), rgba(232, 246, 237, 0.92), rgba(42, 130, 118, 0.28));
-}
-
-.vase--main {
-  right: 126rpx;
-  bottom: -28rpx;
-  width: 180rpx;
-  height: 270rpx;
-}
-
-.vase--main .vase-neck {
-  top: -78rpx;
-  left: 48rpx;
-  width: 80rpx;
-  height: 94rpx;
-}
-
-.vase--left {
-  left: 188rpx;
-  transform: scale(0.78);
-  opacity: 0.62;
-}
-
-.vase--right {
-  right: -18rpx;
-  transform: scale(0.92);
-  opacity: 0.68;
-}
-
-.vase--far {
-  left: 64rpx;
-  bottom: -38rpx;
-  transform: scale(0.58);
-  opacity: 0.36;
-}
-
-.vase-branch {
-  position: absolute;
-  top: -148rpx;
-  left: 106rpx;
-  width: 5rpx;
-  height: 158rpx;
-  transform: rotate(21deg);
-  transform-origin: bottom;
-  border-radius: 50%;
-  background: #527c68;
-}
-
-.vase-branch::before,
-.vase-branch::after {
-  position: absolute;
-  width: 72rpx;
-  height: 58rpx;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(64, 130, 104, 0.85) 0 8%, transparent 10%), radial-gradient(circle at 30% 35%, rgba(83, 149, 118, 0.7) 0 7%, transparent 9%);
-  background-size: 17rpx 17rpx, 19rpx 19rpx;
-  content: '';
-}
-
-.vase-branch::before {
-  top: -8rpx;
-  left: -45rpx;
-}
-
-.vase-branch::after {
-  top: 42rpx;
-  right: -47rpx;
-  transform: scale(0.72);
+/* 横幅按容器比例全宽铺满；当前图片比例与 750rpx × 394rpx 容器一致，不会发生明显裁切。 */
+.hero-image {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* 顶部青铜兽：锚定主视觉右下角，并覆盖在瓶器和下一分区之上。 */
