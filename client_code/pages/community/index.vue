@@ -1,12 +1,24 @@
 <template>
+  <!--
+    “非遗”发现页只调整视觉层：
+    项目、传承人、知识、种草四个频道及其请求、筛选、互动和跳转逻辑全部保留。
+  -->
   <view class="app-page discover-page with-bottom-nav">
     <view class="safe-top"></view>
 
+    <!-- 标题区复用首页山水背景与青铜兽，统一品牌风格，不增加新的业务入口。 -->
     <view class="discover-header">
-      <view class="discover-eyebrow">ICHIP · DISCOVER</view>
-      <view class="discover-title">非遗</view>
-      <view class="discover-subtitle">发现仍在生活中的传统技艺</view>
+      <!-- 动态绑定静态资源，避免 UniApp 将 /static 路径错误改写为 /assets 哈希地址。 -->
+      <image class="discover-header__background" :src="headerBackground" mode="aspectFill"></image>
+      <image class="discover-header__mascot" :src="mascotImage" mode="aspectFit"></image>
 
+      <view class="discover-header__content">
+        <view class="discover-eyebrow">ICHIP · DISCOVER</view>
+        <view class="discover-title">非遗</view>
+        <view class="discover-subtitle">发现仍在生活中的传统技艺</view>
+      </view>
+
+      <!-- 搜索行为保持不变，仍进入项目原有搜索页面。 -->
       <view class="discover-search" @click="goSearch">
         <text class="discover-search__icon">⌕</text>
         <text class="discover-search__text">搜非遗项目、传承人、地区</text>
@@ -14,6 +26,7 @@
       </view>
     </view>
 
+    <!-- 四频道只切换当前内容视图，不改变原有懒加载和刷新机制。 -->
     <view class="channel-tabs">
       <view
         v-for="item in channels"
@@ -27,6 +40,7 @@
       </view>
     </view>
 
+    <!-- 各频道继续处理首次加载、失败重试、正常内容和空数据状态。 -->
     <view class="channel-stage">
       <content-state
         v-if="currentChannelState.loading && !currentChannelState.loaded"
@@ -43,6 +57,7 @@
       />
 
       <template v-else>
+        <!-- 项目频道：保留名录级别、非遗分类两组原筛选条件。 -->
         <view v-if="activeChannel === 'projects'" class="project-channel">
           <view class="filter-block">
             <view class="filter-label">名录级别</view>
@@ -110,6 +125,7 @@
           <content-state v-else type="empty" message="当前筛选条件下暂无非遗项目" />
         </view>
 
+        <!-- 传承人频道：只调整档案卡片外观，数据仍来自首页公开摘要。 -->
         <view v-else-if="activeChannel === 'inheritors'" class="inheritor-channel">
           <view class="channel-heading">
             <view>
@@ -137,6 +153,7 @@
           <content-state v-else type="empty" message="暂无公开展示的传承人档案" />
         </view>
 
+        <!-- 知识频道：保留资讯详情跳转和原字段展示。 -->
         <view v-else-if="activeChannel === 'knowledge'" class="knowledge-channel">
           <view class="channel-heading">
             <view>
@@ -169,6 +186,7 @@
           <content-state v-else type="empty" message="暂无可阅读的非遗知识内容" />
         </view>
 
+        <!-- 种草频道：发布、详情、点赞、评论和登录校验均保持原实现。 -->
         <view v-else class="notes-channel">
           <view class="notes-toolbar">
             <view>
@@ -242,7 +260,8 @@
     </view>
 
     <view v-if="currentChannelState.loading && currentChannelState.loaded" class="refresh-tip">正在更新…</view>
-    <bottom-nav current="community" />
+    <!-- 与首页、“我的”页面使用相同的绿色底部导航主题。 -->
+    <bottom-nav current="community" theme="green" />
   </view>
 </template>
 
@@ -264,6 +283,11 @@ import {
 import { requireLogin } from '@/common/session.js'
 import { formatDateTime, normalizeImage, shortText } from '@/common/utils.js'
 
+// 标题区复用首页已有静态资源，不在“非遗”页面保存重复图片。
+const HEADER_BACKGROUND = '/static/home/feature-side-bg.png'
+const MASCOT_IMAGE = '/static/home/bronze-beast.png'
+
+// 四个频道的 key 用于数据状态和加载分流，label 只负责页面展示。
 const CHANNELS = [
   { key: 'projects', label: '项目' },
   { key: 'inheritors', label: '传承人' },
@@ -309,6 +333,9 @@ export default {
   mixins: [tabbarPageMixin],
   data() {
     return {
+      // 以下两项仅用于标题区装饰，不参与频道请求和互动逻辑。
+      headerBackground: HEADER_BACKGROUND,
+      mascotImage: MASCOT_IMAGE,
       channels: CHANNELS,
       activeChannel: 'projects',
       channelStates: createChannelStates(),
@@ -1051,5 +1078,738 @@ export default {
   background: rgba(44, 39, 35, 0.86);
   color: #fff;
   font-size: 19rpx;
+}
+</style>
+
+<style lang="scss" scoped>
+/*
+ * “非遗”发现页绿色主题覆盖。
+ * 本段只负责颜色、间距、边框、背景和卡片层级；原模板事件与脚本方法保持不变。
+ * 主题色与首页、“我的”页面使用同一组青绿配色。
+ */
+$discover-green: #087d79;
+$discover-deep: #285f5c;
+$discover-ink: #24423f;
+$discover-muted: #668079;
+$discover-faint: #8aa099;
+$discover-paper: rgba(249, 252, 242, 0.95);
+$discover-line: rgba(40, 105, 97, 0.2);
+$discover-pale: #dcebd1;
+
+/* 页面底色采用首页相同的浅绿纸张渐变，并为固定底部导航预留安全区。 */
+.discover-page {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: calc(154rpx + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 14% 8%, rgba(255, 255, 255, 0.82) 0, transparent 28%),
+    linear-gradient(180deg, #edf4e8 0%, #f5f7ef 52%, #edf3e7 100%);
+  color: $discover-ink;
+}
+
+.discover-page::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(45deg, rgba(35, 105, 96, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(35, 105, 96, 0.04) 25%, transparent 25%);
+  background-size: 20rpx 20rpx;
+  content: '';
+  pointer-events: none;
+}
+
+/* 页面主体始终位于背景纹理之上。 */
+.safe-top,
+.discover-header,
+.channel-tabs,
+.channel-stage,
+.refresh-tip {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * 标题区使用已有横向山水图作为背景，青铜兽独立叠放。
+ * 背景和青铜兽均禁用指针事件，确保不会遮挡搜索框。
+ */
+.discover-header {
+  margin: 0 32rpx;
+  padding: 28rpx 25rpx 24rpx;
+  overflow: hidden;
+  border: 1rpx solid $discover-line;
+  border-radius: 22rpx;
+  background: #f6f8e9;
+  box-shadow: 0 8rpx 20rpx rgba(62, 101, 72, 0.1);
+}
+
+.discover-header::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(250, 252, 243, 0.88) 0%, rgba(250, 252, 243, 0.48) 58%, rgba(250, 252, 243, 0.08) 100%);
+  content: '';
+  pointer-events: none;
+}
+
+.discover-header__background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.discover-header__mascot {
+  position: absolute;
+  top: 4rpx;
+  right: 13rpx;
+  z-index: 2;
+  width: 132rpx;
+  height: 157rpx;
+  pointer-events: none;
+}
+
+.discover-header__content {
+  position: relative;
+  z-index: 3;
+  width: calc(100% - 138rpx);
+}
+
+.discover-eyebrow {
+  color: rgba(40, 95, 92, 0.62);
+  font-family: Georgia, serif;
+  font-size: 14rpx;
+  letter-spacing: 6rpx;
+}
+
+.discover-title {
+  margin-top: 8rpx;
+  color: $discover-green;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 47rpx;
+  font-weight: 600;
+  letter-spacing: 9rpx;
+}
+
+.discover-subtitle {
+  margin-top: 6rpx;
+  color: $discover-muted;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+/* 搜索栏保留原跳转，只调整为首页相同的圆角浅绿色输入视觉。 */
+.discover-search {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  height: 64rpx;
+  margin-top: 24rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.14);
+  border-radius: 32rpx;
+  background: rgba(237, 242, 226, 0.9);
+}
+
+.discover-search__icon {
+  margin-right: 12rpx;
+  color: $discover-deep;
+  font-size: 29rpx;
+}
+
+.discover-search__text {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: #71857f;
+  font-size: 21rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discover-search__arrow {
+  color: $discover-deep;
+  font-size: 22rpx;
+}
+
+/* 四频道改为一体化浅色标签栏，激活项使用实色玉绿胶囊。 */
+.channel-tabs {
+  display: flex;
+  margin: 20rpx 32rpx 0;
+  padding: 6rpx;
+  border: 1rpx solid rgba(47, 108, 92, 0.14);
+  border-radius: 999rpx;
+  background: rgba(248, 251, 241, 0.82);
+  box-shadow: 0 5rpx 13rpx rgba(61, 101, 71, 0.07);
+}
+
+.channel-tab {
+  position: relative;
+  flex: 1;
+  padding: 13rpx 0;
+  border-radius: 999rpx;
+  color: $discover-muted;
+  font-size: 22rpx;
+  text-align: center;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.channel-tab--active {
+  background: linear-gradient(135deg, #38796f, $discover-deep);
+  color: #f8fbef;
+  font-weight: 600;
+  box-shadow: 0 5rpx 12rpx rgba(40, 95, 92, 0.17);
+}
+
+/* 胶囊激活态已经足够明确，因此隐藏旧的下划线指示器。 */
+.channel-tab__indicator,
+.channel-tab--active .channel-tab__indicator {
+  display: none;
+}
+
+.channel-stage {
+  min-height: 640rpx;
+  padding: 26rpx 32rpx 16rpx;
+}
+
+/* 项目筛选区使用独立纸张卡片，所有筛选点击和值绑定保持原样。 */
+.filter-block {
+  padding: 19rpx 20rpx;
+  border: 1rpx solid rgba(46, 108, 91, 0.14);
+  border-radius: 15rpx;
+  background: rgba(249, 252, 242, 0.84);
+  box-shadow: 0 4rpx 11rpx rgba(61, 101, 71, 0.06);
+}
+
+.filter-block--category {
+  margin-top: 13rpx;
+}
+
+.filter-label {
+  margin-bottom: 12rpx;
+  color: $discover-deep;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 21rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.filter-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.filter-row {
+  display: inline-flex;
+  gap: 10rpx;
+  padding-right: 24rpx;
+}
+
+.filter-option {
+  padding: 8rpx 15rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.17);
+  border-radius: 999rpx;
+  background: rgba(252, 253, 248, 0.76);
+  color: $discover-muted;
+  font-size: 19rpx;
+}
+
+.filter-option--active {
+  border-color: rgba(40, 95, 92, 0.42);
+  background: $discover-pale;
+  color: $discover-deep;
+  font-weight: 600;
+}
+
+/* 频道标题沿用首页青绿色宋体栏目标题。 */
+.channel-heading,
+.notes-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 31rpx 0 19rpx;
+}
+
+.channel-heading__title {
+  color: $discover-green;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
+}
+
+.channel-heading__note {
+  margin-top: 6rpx;
+  color: $discover-muted;
+  font-size: 19rpx;
+}
+
+.channel-heading__count {
+  padding: 6rpx 12rpx;
+  border-radius: 999rpx;
+  background: rgba(220, 235, 209, 0.8);
+  color: $discover-deep;
+  font-size: 18rpx;
+}
+
+/* 非遗项目使用两列纸张档案卡，封面与接口内容均保持原样。 */
+.project-grid,
+.inheritor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18rpx 14rpx;
+}
+
+.archive-card {
+  min-width: 0;
+  overflow: hidden;
+  padding-bottom: 15rpx;
+  border: 1rpx solid rgba(54, 113, 91, 0.16);
+  border-radius: 13rpx;
+  background: $discover-paper;
+  box-shadow: 0 6rpx 13rpx rgba(61, 101, 71, 0.09);
+}
+
+.archive-card__cover {
+  width: 100%;
+  height: 218rpx;
+  border-radius: 0;
+  background: linear-gradient(145deg, #e7f0ea, #c8ddd6);
+}
+
+.archive-card__meta,
+.archive-card__name,
+.archive-card__region {
+  margin-right: 14rpx;
+  margin-left: 14rpx;
+}
+
+.archive-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 7rpx;
+  margin-top: 12rpx;
+}
+
+.archive-level,
+.archive-category {
+  max-width: 118rpx;
+  overflow: hidden;
+  padding: 4rpx 8rpx;
+  border-radius: 999rpx;
+  font-size: 16rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-level {
+  border: 1rpx solid rgba(40, 95, 92, 0.23);
+  color: $discover-deep;
+}
+
+.archive-category {
+  background: rgba(220, 235, 209, 0.72);
+  color: $discover-green;
+}
+
+.archive-card__name {
+  display: -webkit-box;
+  margin-top: 9rpx;
+  overflow: hidden;
+  color: $discover-ink;
+  font-size: 25rpx;
+  font-weight: 600;
+  line-height: 1.42;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.archive-card__region {
+  margin-top: 6rpx;
+  overflow: hidden;
+  color: $discover-muted;
+  font-size: 18rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 传承人继续使用大图档案卡，仅改为首页同款青绿色遮罩和边框。 */
+.inheritor-channel .channel-heading,
+.knowledge-channel .channel-heading {
+  margin-top: 5rpx;
+}
+
+.inheritor-card {
+  position: relative;
+  min-width: 0;
+  height: 374rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(45, 105, 91, 0.21);
+  border-radius: 15rpx;
+  background: #d1dfd7;
+  box-shadow: 0 7rpx 16rpx rgba(51, 93, 71, 0.12);
+}
+
+.inheritor-card__portrait {
+  width: 100%;
+  height: 100%;
+}
+
+.inheritor-card__shade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 78rpx 20rpx 20rpx;
+  background: linear-gradient(180deg, transparent, rgba(25, 72, 66, 0.88));
+}
+
+.inheritor-card__name {
+  color: #fbfdf4;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.inheritor-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 9rpx;
+  margin-top: 7rpx;
+  color: rgba(247, 251, 239, 0.76);
+  font-size: 17rpx;
+}
+
+.inheritor-card__level {
+  padding: 3rpx 7rpx;
+  border: 1rpx solid rgba(247, 251, 239, 0.4);
+  border-radius: 999rpx;
+}
+
+/* 知识频道每条内容独立成卡，仍使用原详情跳转。 */
+.knowledge-list {
+  display: grid;
+  gap: 13rpx;
+}
+
+.knowledge-item {
+  display: flex;
+  align-items: center;
+  padding: 19rpx;
+  border: 1rpx solid rgba(48, 108, 91, 0.14);
+  border-radius: 14rpx;
+  background: $discover-paper;
+  box-shadow: 0 5rpx 12rpx rgba(61, 101, 71, 0.07);
+}
+
+.knowledge-item:first-child {
+  padding-top: 19rpx;
+}
+
+.knowledge-item:last-child {
+  border-bottom: 1rpx solid rgba(48, 108, 91, 0.14);
+}
+
+.knowledge-index {
+  width: 48rpx;
+  align-self: flex-start;
+  flex-shrink: 0;
+  color: #759477;
+  font-family: Georgia, serif;
+  font-size: 18rpx;
+}
+
+.knowledge-copy {
+  min-width: 0;
+  flex: 1;
+  margin-right: 15rpx;
+}
+
+.knowledge-kicker {
+  color: $discover-green;
+  font-size: 16rpx;
+  letter-spacing: 2rpx;
+}
+
+.knowledge-title {
+  display: -webkit-box;
+  margin-top: 6rpx;
+  overflow: hidden;
+  color: $discover-ink;
+  font-size: 25rpx;
+  font-weight: 600;
+  line-height: 1.42;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.knowledge-summary {
+  display: -webkit-box;
+  margin-top: 7rpx;
+  overflow: hidden;
+  color: $discover-muted;
+  font-size: 18rpx;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.knowledge-source {
+  margin-top: 6rpx;
+  color: $discover-faint;
+  font-size: 16rpx;
+}
+
+.knowledge-cover {
+  width: 142rpx;
+  height: 112rpx;
+  flex-shrink: 0;
+  border-radius: 11rpx;
+  background: #d2e0d8;
+}
+
+/* 种草工具栏保留发布入口，并突出为绿色描边按钮。 */
+.notes-toolbar {
+  margin-top: 5rpx;
+}
+
+.publish-entry {
+  padding: 9rpx 15rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.34);
+  border-radius: 999rpx;
+  background: rgba(220, 235, 209, 0.62);
+  color: $discover-deep;
+  font-size: 19rpx;
+}
+
+.note-filter-scroll {
+  margin-bottom: 15rpx;
+}
+
+/* 每篇种草笔记使用独立纸张卡，点赞、评论和详情点击区域保持原样。 */
+.note-list {
+  display: grid;
+  gap: 15rpx;
+}
+
+.note-item {
+  padding: 22rpx;
+  border: 1rpx solid rgba(48, 108, 91, 0.15);
+  border-radius: 15rpx;
+  background: $discover-paper;
+  box-shadow: 0 6rpx 14rpx rgba(61, 101, 71, 0.08);
+}
+
+.note-item:first-child {
+  padding-top: 22rpx;
+}
+
+.note-item:last-child {
+  border-bottom: 1rpx solid rgba(48, 108, 91, 0.15);
+}
+
+.note-author {
+  display: flex;
+  align-items: center;
+}
+
+.note-avatar,
+.comment-avatar {
+  width: 62rpx;
+  height: 62rpx;
+  flex-shrink: 0;
+  border: 2rpx solid rgba(40, 95, 92, 0.2);
+  border-radius: 50%;
+  background: #d2e0d8;
+}
+
+.note-author__copy {
+  min-width: 0;
+  flex: 1;
+  margin-left: 13rpx;
+}
+
+.note-author__name {
+  color: $discover-ink;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.note-author__time {
+  margin-top: 3rpx;
+  color: $discover-faint;
+  font-size: 16rpx;
+}
+
+.note-category {
+  padding: 5rpx 10rpx;
+  border-radius: 999rpx;
+  background: rgba(220, 235, 209, 0.72);
+  color: $discover-deep;
+  font-size: 17rpx;
+}
+
+.note-title {
+  margin-top: 16rpx;
+  color: $discover-ink;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 29rpx;
+  font-weight: 600;
+  line-height: 1.42;
+}
+
+.note-content {
+  display: -webkit-box;
+  margin-top: 8rpx;
+  overflow: hidden;
+  color: $discover-muted;
+  font-size: 22rpx;
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.note-images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8rpx;
+  margin-top: 16rpx;
+}
+
+.note-image {
+  width: 100%;
+  height: 190rpx;
+  border-radius: 10rpx;
+  background: #d2e0d8;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 26rpx;
+  margin-top: 16rpx;
+  color: $discover-deep;
+  font-size: 20rpx;
+}
+
+/* 评论区维持原加载与提交逻辑，只统一输入框和按钮样式。 */
+.comment-box {
+  margin-top: 16rpx;
+  padding: 17rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.15);
+  border-radius: 12rpx;
+  background: rgba(235, 244, 226, 0.62);
+}
+
+.comment-item {
+  display: flex;
+  gap: 11rpx;
+  padding: 13rpx 0;
+  border-top: 1rpx solid rgba(40, 95, 92, 0.12);
+}
+
+.comment-item:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.comment-avatar {
+  width: 50rpx;
+  height: 50rpx;
+}
+
+.comment-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.comment-name,
+.comment-content,
+.comment-time,
+.comment-empty {
+  display: block;
+}
+
+.comment-name {
+  color: $discover-ink;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.comment-content {
+  margin-top: 5rpx;
+  color: $discover-muted;
+  font-size: 21rpx;
+  line-height: 1.55;
+}
+
+.comment-time,
+.comment-empty {
+  margin-top: 5rpx;
+  color: $discover-faint;
+  font-size: 16rpx;
+}
+
+.comment-input {
+  width: 100%;
+  min-height: 116rpx;
+  margin-top: 12rpx;
+  padding: 14rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.16);
+  border-radius: 10rpx;
+  background: rgba(252, 253, 248, 0.9);
+  color: $discover-ink;
+  font-size: 21rpx;
+}
+
+.comment-submit {
+  width: 136rpx;
+  margin-top: 12rpx;
+  margin-left: auto;
+  padding: 10rpx 0;
+  border-radius: 999rpx;
+  background: $discover-deep;
+  color: #f8fbef;
+  font-size: 19rpx;
+  text-align: center;
+}
+
+.refresh-tip {
+  position: fixed;
+  top: calc(24rpx + env(safe-area-inset-top));
+  right: 24rpx;
+  z-index: 50;
+  padding: 10rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(23, 91, 84, 0.9);
+  color: #fff;
+  font-size: 19rpx;
+}
+
+/* 小屏设备收紧标题区和卡片尺寸，避免青铜兽覆盖标题文字。 */
+@media screen and (max-width: 350px) {
+  .discover-header__mascot {
+    width: 112rpx;
+    height: 133rpx;
+  }
+
+  .discover-header__content {
+    width: calc(100% - 112rpx);
+  }
+
+  .discover-subtitle,
+  .discover-search__text {
+    font-size: 18rpx;
+  }
+
+  .archive-card__cover {
+    height: 198rpx;
+  }
 }
 </style>
