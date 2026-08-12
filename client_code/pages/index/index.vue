@@ -69,6 +69,8 @@
       <!-- 三张主题入口卡片。AI 卡片当前只保留设计稿文字和视觉，不绑定 AI 业务。 -->
       <view class="feature-grid">
         <view class="feature-card feature-card--knowledge">
+          <!-- 左侧大卡使用竖向山水背景；图片层不接收点击，卡片功能保持不变。 -->
+          <image class="feature-background" :src="featureAiBackground" mode="aspectFill"></image>
           <view class="feature-copy">
             <text class="feature-title">AI虚拟体验专区</text>
             <text class="feature-desc">AI数字人讲解｜非遗互动语音问答</text>
@@ -80,6 +82,8 @@
 
         <view class="feature-stack">
           <view class="feature-card feature-card--city">
+            <!-- 右侧两张小卡共用横向背景，避免保存两份完全相同的静态资源。 -->
+            <image class="feature-background" :src="featureSideBackground" mode="aspectFill"></image>
             <view class="feature-copy" @tap="goActivity">
               <text class="feature-title">同城 · {{ selectedCityName }}非遗</text>
               <text class="feature-desc">发现身边的手艺与活动</text>
@@ -98,6 +102,7 @@
           </view>
 
           <view class="feature-card feature-card--inheritor" @tap="goCommunity">
+            <image class="feature-background" :src="featureSideBackground" mode="aspectFill"></image>
             <view class="feature-copy">
               <text class="feature-title">热门传承人</text>
               <text class="feature-desc">听见守艺人的传承故事</text>
@@ -182,6 +187,10 @@ const CITY_STORAGE_KEY = 'home-city-code'
 // 首页上方主视觉成品。原图按当前容器比例处理为 1500×788，并压缩为小程序友好的 JPG。
 const HERO_IMAGE = '/static/home/home-hero.jpg'
 
+// 三张功能卡的静态山水背景：首页左侧使用竖图，右侧上下两张卡共用横图。
+const FEATURE_AI_BACKGROUND = '/static/home/feature-ai-bg.png'
+const FEATURE_SIDE_BACKGROUND = '/static/home/feature-side-bg.png'
+
 //
 // 首页静态图片统一放在 /static/home/。
 // 此地址存入 data 后通过 :src 绑定，避免 UniApp 编译器把固定模板地址改写为
@@ -263,6 +272,9 @@ export default {
       cityError: '',
       // 主视觉也通过 data 动态绑定，避免静态模板地址被编译成错误的哈希资源路径。
       heroImage: HERO_IMAGE,
+      // 功能卡背景同样使用动态路径，确保微信小程序直接读取 /static/home/ 中的文件。
+      featureAiBackground: FEATURE_AI_BACKGROUND,
+      featureSideBackground: FEATURE_SIDE_BACKGROUND,
       // 青铜兽使用动态地址，原因见 MASCOT_IMAGE 上方注释。
       mascotImage: MASCOT_IMAGE,
       activeRecommendation: 'today',
@@ -1516,21 +1528,24 @@ $home-ink: #24423f;
   overflow: hidden;
   border: 1rpx solid rgba(97, 146, 115, 0.23);
   border-radius: 15rpx;
-  background:
-    radial-gradient(ellipse at 100% 100%, rgba(161, 207, 176, 0.42), transparent 49%),
-    linear-gradient(135deg, rgba(246, 252, 236, 0.98), rgba(224, 242, 216, 0.93));
+  background: #f6f8e9;
   box-shadow: 0 5rpx 11rpx rgba(74, 110, 82, 0.14);
 }
 
-.feature-card::after {
+/*
+ * 三张卡片的山水背景使用独立 image 元素：
+ * - 左侧 AI 卡绑定 feature-ai-bg.png；
+ * - 右侧同城和传承人卡共同绑定 feature-side-bg.png。
+ * pointer-events: none 确保背景不会阻挡城市 picker 或原有点击事件。
+ */
+.feature-background {
   position: absolute;
-  right: -25rpx;
-  bottom: -22rpx;
-  width: 170rpx;
-  height: 75rpx;
-  border: 2rpx solid rgba(38, 135, 112, 0.14);
-  border-radius: 50%;
-  content: '';
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .feature-card--knowledge {
