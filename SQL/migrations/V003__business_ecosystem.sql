@@ -168,9 +168,6 @@ CALL `add_column_if_not_exists`(
   'product', 'product_system_id',
   '`product_system_id` BIGINT DEFAULT NULL COMMENT ''产品体系ID（新版六大产品体系）'' AFTER `category_id`'
 );
-CALL `add_column_if_not_exists`(
-  'product', 'idx_product_system_id', NULL
-);
 DROP PROCEDURE IF EXISTS `add_index_if_not_exists`;
 DELIMITER $$
 CREATE PROCEDURE `add_index_if_not_exists`(IN tbl VARCHAR(64), IN idx VARCHAR(64), IN ddl VARCHAR(512))

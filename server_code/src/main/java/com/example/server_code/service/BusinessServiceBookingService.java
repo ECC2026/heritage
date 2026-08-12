@@ -111,10 +111,19 @@ public class BusinessServiceBookingService {
             throw new BizException("当前状态不可取消");
         }
 
-        booking.setStatus(2);
-        bookingMapper.updateById(booking);
+        // 原子状态转换：仅当仍为“已预约”时才置为“已取消”。
+        // 并发取消同一预约时只有一个线程能命中，避免重复回补容量。
+        UpdateWrapper<BusinessServiceBooking> cancel = new UpdateWrapper<>();
+        cancel.eq("id", booking.getId())
+                .eq("user_id", booking.getUserId())
+                .eq("status", 1)
+                .set("status", 2);
+        int rows = bookingMapper.update(null, cancel);
+        if (rows == 0) {
+            throw new BizException("当前状态不可取消");
+        }
 
-        // 恢复名额，下限为 0，防止历史数据导致负数。
+        // 只有状态转换成功才恢复名额，下限为 0，防止历史数据导致负数。
         UpdateWrapper<BusinessServiceSchedule> restore = new UpdateWrapper<>();
         restore.eq("id", booking.getScheduleId())
                 .setSql("booked_count = GREATEST(booked_count - " + booking.getQuantity() + ", 0)");

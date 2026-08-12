@@ -102,6 +102,7 @@ public class BusinessServiceService {
         if (service.getStatus() == null) {
             service.setStatus(1);
         }
+        validateStatus(service.getStatus());
         if (service.getSort() == null) {
             service.setSort(0);
         }
@@ -113,6 +114,7 @@ public class BusinessServiceService {
             throw new BizException("服务不存在");
         }
         validate(service);
+        validateStatus(service.getStatus());
         serviceMapper.updateById(service);
     }
 
@@ -121,6 +123,7 @@ public class BusinessServiceService {
         if (service == null) {
             throw new BizException("服务不存在");
         }
+        validateStatus(status);
         service.setStatus(status);
         serviceMapper.updateById(service);
     }
@@ -154,6 +157,9 @@ public class BusinessServiceService {
         if (schedule.getCapacity() == null) {
             schedule.setCapacity(0);
         }
+        if (schedule.getCapacity() < 0) {
+            throw new BizException("场次容量不能小于0");
+        }
         if (schedule.getBookedCount() == null) {
             schedule.setBookedCount(0);
         }
@@ -172,6 +178,15 @@ public class BusinessServiceService {
         }
         if (productSystemMapper.selectById(service.getProductSystemId()) == null) {
             throw new BizException("产品体系不存在");
+        }
+    }
+
+    /**
+     * 服务状态仅允许 0-停用、1-启用，非法值直接抛业务异常。
+     */
+    private void validateStatus(Integer status) {
+        if (status != null && status != 0 && status != 1) {
+            throw new BizException("服务状态不合法，仅支持 0-停用、1-启用");
         }
     }
 

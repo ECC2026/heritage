@@ -2,7 +2,20 @@
 
 同城非遗文化互动平台：看传承、学手艺、逛好物、约体验。包含三端代码：`server_code`（Spring Boot 后端）、`client_code`（uni-app 小程序）、`manage_code`（Vue3 管理后台）。
 
-> 本 README 同步自 `hermes/` 目录的最终实现报告（修改时间 2026-08-12 08:53）。
+> 本 README 由 `hermes/` 目录的最终实现报告与更新记录汇总而成（同步时间 2026-08-12 09:46）。
+
+---
+
+## 更新记录
+
+### 2026-08-12 · 代码审查修复（基于 f8fe687）
+- **P0 V003 迁移**：删除误调用 `CALL add_column_if_not_exists('product', 'idx_product_system_id', NULL)`（把索引名当字段名、ddl 为 NULL）；通读确认无其他同类错误。
+- **P1 取消预约并发**：cancelBooking 改为原子状态转换 `UPDATE ... SET status=2 WHERE id=? AND user_id=? AND status=1`，仅 `affectedRows==1` 才回补 booked_count；`rows==0` 抛业务异常且不回补。仍为 @Transactional，API 不变。
+- **P1 服务状态**：新增 `validateStatus`，create/update/updateStatus 仅允许 0-停用、1-启用，非法值抛业务异常。
+- **P1 场次容量**：addSchedule 校验 `capacity >= 0`（0 继续表示不限）。
+- 修改文件：`SQL/migrations/V003__business_ecosystem.sql`、`BusinessServiceBookingService.java`、`BusinessServiceService.java`
+- 编译：后端 mvn compile EXIT=0 / 管理后台 npm run build EXIT=0 / C端 build:mp-weixin EXIT=0
+- 运行时：V003 在临时库完整应用成功；cancelBooking 并发 SQL 级模拟确认只回补一次（详见 `hermes/2026-08-12_代码审查修复记录.md`）。
 
 ---
 
