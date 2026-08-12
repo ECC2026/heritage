@@ -1,5 +1,15 @@
 <template>
-  <view class="page-header" :class="{ 'page-header--quiet': variant === 'quiet' }">
+  <!--
+    variant 仅负责视觉主题：default/quiet 保持旧页面效果，green 给首页同风格页面按需启用。
+    返回点击仍统一调用 handleBack，不因主题发生任何行为变化。
+  -->
+  <view
+    class="page-header"
+    :class="{
+      'page-header--quiet': variant === 'quiet',
+      'page-header--green': variant === 'green'
+    }"
+  >
     <view class="page-header__safe"></view>
     <view class="page-header__bar">
       <view class="page-header__action" @tap="handleBack">
@@ -116,5 +126,26 @@ export default {
   color: $ichip-color-ink;
   font-size: 29rpx;
   font-weight: $ichip-weight-medium;
+}
+
+/*
+ * 青绿色可选主题：目前由搜索页显式启用。
+ * 不改变组件尺寸和占位布局，避免影响微信胶囊区与原有返回触控范围。
+ */
+.page-header--green .page-header__action {
+  border: 1rpx solid rgba(36, 105, 97, 0.18);
+  background: rgba(244, 249, 237, 0.92);
+  box-shadow: 0 7rpx 18rpx rgba(63, 102, 74, 0.1);
+}
+
+.page-header--green .page-header__back-icon {
+  color: #285f5c;
+}
+
+.page-header--green .page-header__title {
+  color: #087d79;
+  font-family: "STKaiti", "KaiTi", "STSong", serif;
+  font-weight: 600;
+  letter-spacing: 5rpx;
 }
 </style>

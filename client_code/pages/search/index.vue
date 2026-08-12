@@ -1,8 +1,21 @@
 <template>
   <view class="app-page search-page">
-    <page-header title="全局搜索" />
+    <!-- green 只切换公共页眉外观，返回栈和首页兜底逻辑仍由 PageHeader 原方法处理。 -->
+    <page-header title="全局搜索" variant="green" />
 
+    <!--
+      搜索主视觉复用首页已归档的水墨山景，只承担背景装饰，不参与搜索参数或事件。
+      这里明确不放青铜兽；图片使用 data 动态绑定，兼容微信小程序的静态资源编译方式。
+    -->
     <view class="search-panel">
+      <image class="search-panel__background" :src="pageVisualBackground" mode="aspectFill"></image>
+      <view class="search-panel__heading">
+        <text class="search-panel__kicker">HERITAGE SEARCH</text>
+        <text class="search-panel__title">寻觅非遗</text>
+        <text class="search-panel__subtitle">从技艺、人物与好物中，找到心之所向</text>
+      </view>
+
+      <!-- 原有输入、搜索和禁用逻辑全部保留，只调整控件外观。 -->
       <view class="search-box">
         <input
           v-model="keyword"
@@ -11,6 +24,7 @@
           confirm-type="search"
           maxlength="100"
           placeholder="搜索非遗项目、传承人、商品或课程"
+          placeholder-style="color:#78908a;font-size:25rpx;"
           @confirm="submitSearch"
           @input="handleKeywordInput"
         />
@@ -22,7 +36,8 @@
         >搜索</button>
       </view>
 
-      <scroll-view scroll-x class="type-scroll">
+      <!-- 搜索类型仍由 SEARCH_TYPES 驱动，点击后继续调用原 changeType 方法。 -->
+      <scroll-view scroll-x class="type-scroll" :show-scrollbar="false">
         <view class="type-list">
           <view
             v-for="item in searchTypes"
@@ -59,7 +74,7 @@
         type="empty"
         message="没有找到相关内容，换个关键词试试"
       />
-      <view v-else>
+      <view v-else class="result-list">
         <view
           v-for="item in results"
           :key="`${item.type}-${item.id}`"
@@ -104,6 +119,9 @@ import PageHeader from '@/components/page-header.vue'
 import { searchContent } from '@/common/request/api.js'
 import { formatDateTime, formatPrice, normalizeImage, shortText } from '@/common/utils.js'
 
+// 与首页、商城和活动页共用同一份水墨静态素材，避免重复文件散落在页面目录。
+const PAGE_VISUAL_BACKGROUND = '/static/home/feature-side-bg.png'
+
 const SEARCH_TYPES = [
   { value: 'all', label: '全部' },
   { value: 'heritage_project', label: '非遗项目' },
@@ -119,6 +137,8 @@ export default {
   },
   data() {
     return {
+      // 纯 UI 配置，不会进入统一搜索接口的请求参数。
+      pageVisualBackground: PAGE_VISUAL_BACKGROUND,
       keyword: '',
       type: 'all',
       searchTypes: SEARCH_TYPES,
@@ -237,52 +257,151 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/*
+ * 搜索页局部色板与首页保持一致。
+ * scoped 限制保证这里只改变搜索页，不影响搜索接口或其他业务页面。
+ */
+$page-bg: #edf3e7;
+$theme-green: #087d79;
+$theme-deep: #285f5c;
+$theme-ink: #24423f;
+$theme-muted: #66807a;
+$theme-line: rgba(36, 105, 97, 0.22);
+$theme-card: rgba(249, 252, 242, 0.94);
+
+/* 首页同款宣纸渐变和细纹理，并给页面底部留出舒适浏览空间。 */
 .search-page {
-  padding-bottom: 48rpx;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: calc(68rpx + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 16% 10%, rgba(255, 255, 255, 0.78) 0, rgba(255, 255, 255, 0) 25%),
+    linear-gradient(180deg, #eef4e8 0%, #f5f7ef 52%, $page-bg 100%);
+  color: $theme-ink;
 }
 
+.search-page::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(45deg, rgba(34, 102, 94, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(34, 102, 94, 0.04) 25%, transparent 25%);
+  background-size: 20rpx 20rpx;
+  content: '';
+  pointer-events: none;
+}
+
+/* 两个业务内容区抬到纹理层上方，确保背景永远不阻挡触控。 */
 .search-panel {
-  margin: 0 24rpx 24rpx;
-  padding: 24rpx;
-  border-radius: 28rpx;
-  background: rgba(255, 252, 247, 0.96);
-  box-shadow: 0 14rpx 32rpx rgba(87, 55, 36, 0.06);
+  position: relative;
+  z-index: 1;
+  margin: 0 28rpx 24rpx;
+  overflow: hidden;
+  padding: 27rpx 24rpx 23rpx;
+  border: 1rpx solid $theme-line;
+  border-radius: 22rpx;
+  background: #f5f8ea;
+  box-shadow: 0 8rpx 22rpx rgba(63, 102, 74, 0.12);
+}
+
+/* 水墨图绝对定位在卡片底层；pointer-events 保证输入框、按钮和标签正常点击。 */
+.search-panel__background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.search-panel__heading,
+.search-box,
+.type-scroll {
+  position: relative;
+  z-index: 1;
+}
+
+.search-panel__heading {
+  display: flex;
+  flex-direction: column;
+  padding: 0 4rpx 22rpx;
+}
+
+.search-panel__kicker {
+  color: rgba(40, 95, 92, 0.68);
+  font-family: Georgia, serif;
+  font-size: 16rpx;
+  letter-spacing: 6rpx;
+}
+
+.search-panel__title {
+  margin-top: 6rpx;
+  color: $theme-green;
+  font-family: "STKaiti", "KaiTi", "STSong", serif;
+  font-size: 40rpx;
+  font-weight: 600;
+  letter-spacing: 7rpx;
+}
+
+.search-panel__subtitle {
+  margin-top: 7rpx;
+  color: $theme-muted;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
 }
 
 .search-box {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 14rpx;
 }
 
+/* 输入框采用首页搜索条的半透明浅绿形态，原 v-model 和输入事件不变。 */
 .search-input {
   flex: 1;
-  height: 80rpx;
-  padding: 0 26rpx;
-  border: 2rpx solid rgba(166, 71, 45, 0.12);
+  height: 72rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid rgba(55, 112, 99, 0.17);
   border-radius: 999rpx;
-  background: #fff;
-  color: #34251f;
-  font-size: 27rpx;
+  background: rgba(248, 251, 242, 0.9);
+  color: $theme-ink;
+  font-size: 25rpx;
+  box-shadow: 0 3rpx 10rpx rgba(63, 98, 72, 0.07);
 }
 
 .search-button {
-  width: 132rpx;
-  height: 80rpx;
+  width: 118rpx;
+  height: 72rpx;
   margin: 0;
   border-radius: 999rpx;
-  background: #a6472d;
-  color: #fff;
-  font-size: 27rpx;
-  line-height: 80rpx;
+  background: $theme-green;
+  color: #f7fbf1;
+  font-size: 25rpx;
+  font-weight: 600;
+  line-height: 72rpx;
+  box-shadow: 0 5rpx 12rpx rgba(8, 125, 121, 0.17);
+}
+
+.search-button::after,
+.load-more::after {
+  border: none;
 }
 
 .search-button[disabled] {
-  opacity: 0.55;
+  background: #a9bdb2;
+  color: rgba(255, 255, 255, 0.88);
+  opacity: 0.72;
+  box-shadow: none;
 }
 
 .type-scroll {
-  margin-top: 22rpx;
+  width: 100%;
+  margin-top: 20rpx;
   white-space: nowrap;
 }
 
@@ -292,38 +411,92 @@ export default {
 }
 
 .type-item {
-  padding: 14rpx 24rpx;
+  padding: 11rpx 23rpx;
+  border: 1rpx solid rgba(46, 110, 100, 0.15);
   border-radius: 999rpx;
-  background: #f5ece2;
-  color: #755f52;
-  font-size: 24rpx;
+  background: rgba(248, 251, 241, 0.76);
+  color: $theme-muted;
+  font-size: 22rpx;
 }
 
 .type-item.active {
-  background: #a6472d;
-  color: #fff;
+  border-color: $theme-green;
+  background: $theme-green;
+  color: #f7fbf1;
+  font-weight: 600;
+  box-shadow: 0 5rpx 12rpx rgba(8, 125, 121, 0.17);
 }
 
+/* 覆盖全局棕色 section-card，让结果容器成为半透明浅绿纸张卡片。 */
 .result-card {
-  min-height: 400rpx;
+  position: relative;
+  z-index: 1;
+  min-height: 410rpx;
+  margin: 0 28rpx;
+  padding: 26rpx 22rpx;
+  border: 1rpx solid $theme-line;
+  border-radius: 22rpx;
+  background: rgba(249, 252, 242, 0.88);
+  box-shadow: 0 8rpx 22rpx rgba(63, 102, 74, 0.1);
 }
 
+.section-head {
+  margin-bottom: 20rpx;
+}
+
+/* 标题短线与首页和另外两个业务页保持一致，完全由 CSS 绘制。 */
+.section-title {
+  position: relative;
+  padding-left: 24rpx;
+  color: $theme-green;
+  font-family: "STKaiti", "KaiTi", "STSong", serif;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
+}
+
+.section-title::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 14rpx;
+  height: 3rpx;
+  border-radius: 3rpx;
+  background: $theme-green;
+  content: '';
+}
+
+.section-note {
+  padding: 7rpx 14rpx;
+  border: 1rpx solid $theme-line;
+  border-radius: 999rpx;
+  background: rgba(248, 251, 241, 0.8);
+  color: $theme-deep;
+  font-size: 19rpx;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+/* 每条结果继续使用原数据和点击方法，仅由分割线列表改为独立浅色卡片。 */
 .result-item {
   display: flex;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid rgba(166, 71, 45, 0.09);
-}
-
-.result-item:last-child {
-  border-bottom: none;
+  padding: 15rpx;
+  border: 1rpx solid rgba(75, 122, 98, 0.18);
+  border-radius: 15rpx;
+  background: $theme-card;
+  box-shadow: 0 4rpx 10rpx rgba(70, 106, 76, 0.08);
 }
 
 .result-cover {
   width: 176rpx;
-  height: 140rpx;
+  height: 148rpx;
   flex-shrink: 0;
-  border-radius: 20rpx;
-  background: #f0e5d8;
+  border-radius: 11rpx;
+  background: linear-gradient(150deg, #eaf2ef, #bad5d0);
 }
 
 .result-body {
@@ -341,44 +514,56 @@ export default {
 
 .result-title {
   flex: 1;
-  color: #34251f;
-  font-size: 29rpx;
-  font-weight: 700;
-  line-height: 1.5;
+  color: $theme-ink;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .result-type {
   flex-shrink: 0;
-  padding: 6rpx 12rpx;
+  padding: 5rpx 11rpx;
+  border: 1rpx solid rgba(8, 125, 121, 0.13);
   border-radius: 999rpx;
-  background: rgba(166, 71, 45, 0.1);
-  color: #8b381f;
-  font-size: 20rpx;
+  background: rgba(220, 235, 209, 0.66);
+  color: $theme-deep;
+  font-size: 18rpx;
 }
 
 .result-summary {
-  margin-top: 10rpx;
-  color: #806c60;
-  font-size: 23rpx;
-  line-height: 1.55;
+  display: -webkit-box;
+  margin-top: 8rpx;
+  overflow: hidden;
+  color: $theme-muted;
+  font-size: 21rpx;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .result-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 14rpx;
-  margin-top: 10rpx;
-  color: #a6472d;
-  font-size: 22rpx;
+  gap: 8rpx 12rpx;
+  margin-top: 8rpx;
+  color: $theme-green;
+  font-size: 19rpx;
 }
 
+/* 加载更多按钮沿用原状态控制，只换成青绿色描边按钮。 */
 .load-more {
   height: 72rpx;
   margin-top: 28rpx;
+  border: 1rpx solid $theme-line;
   border-radius: 999rpx;
-  background: #f5ece2;
-  color: #8b381f;
-  font-size: 25rpx;
+  background: rgba(220, 235, 209, 0.7);
+  color: $theme-deep;
+  font-size: 23rpx;
+  font-weight: 600;
   line-height: 72rpx;
+}
+
+.load-more[disabled] {
+  opacity: 0.65;
 }
 </style>
