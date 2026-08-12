@@ -1,7 +1,20 @@
 <template>
-  <view class="app-page profile-page with-bottom-nav" style="margin-top: 25px;">
+  <!--
+    “我的”页面只调整视觉层：
+    登录状态、用户信息、订单、报名、帖子、收藏、认证与退出登录逻辑全部保留。
+  -->
+  <view class="app-page profile-page with-bottom-nav">
     <view class="safe-top"></view>
 
+    <!-- 页面标题沿用首页的青绿色、宋体和装饰线语言。 -->
+    <view class="profile-heading">
+      <text class="profile-heading-en">PERSONAL HERITAGE</text>
+      <view class="profile-heading-title"><text>我的</text></view>
+      <!-- 青铜兽只作为装饰，不拦截用户点击。图片与首页共用同一静态资源。 -->
+      <image class="profile-heading-mascot" :src="mascotImage" mode="aspectFit"></image>
+    </view>
+
+    <!-- 个人信息卡保留原点击行为：未登录进入登录页，已登录进入资料编辑页。 -->
     <view class="hero-card profile-hero">
       <view class="hero-top">
         <view class="hero-user" @click="handleProfileAction">
@@ -40,7 +53,8 @@
       </view>
     </view>
 
-    <view class="section-card">
+    <!-- 传承人认证的状态、提示和点击目标保持原实现，仅更新卡片样式。 -->
+    <view class="section-card inheritor-section">
       <view class="section-head">
         <text class="section-title">传承人认证</text>
         <text class="section-note">{{ inheritorStatusText() }}</text>
@@ -63,7 +77,8 @@
       </view>
     </view>
 
-    <view class="section-card">
+    <!-- 所有常用入口继续由 quickActions 和 handleQuickAction 统一驱动。 -->
+    <view class="section-card quick-section">
       <view class="section-head">
         <text class="section-title">常用入口</text>
         <text class="section-note">覆盖答辩演示主流程</text>
@@ -82,7 +97,8 @@
       </view>
     </view>
 
-    <view class="section-card">
+    <!-- 互动数字继续使用原接口统计结果，不增加或伪造静态业务数据。 -->
+    <view class="section-card interaction-section">
       <view class="section-head">
         <text class="section-title">互动概览</text>
         <text class="section-note">报名、帖子、收藏</text>
@@ -103,7 +119,8 @@
       </view>
     </view>
 
-    <view class="section-card">
+    <!-- 最近订单保留登录、加载中、空数据和正常列表四种原有状态。 -->
+    <view class="section-card order-section">
       <view class="section-head">
         <text class="section-title">最近订单</text>
         <text class="section-note" @click="goToOrders">全部订单</text>
@@ -145,7 +162,8 @@
     <view v-if="loggedIn" class="section-card logout-card">
       <view class="logout-button" @click="handleLogout">退出登录</view>
     </view>
-    <bottom-nav current="profile" />
+    <!-- 复用首页已经实现的绿色导航主题，不改变 tabBar 路由。 -->
+    <bottom-nav current="profile" theme="green" />
   </view>
 </template>
 
@@ -165,6 +183,9 @@ import { formatDateTime, formatPrice, normalizeImage } from '@/common/utils.js'
 
 const DEFAULT_AVATAR = '/static/img/logo.png'
 
+// 与首页复用同一个青铜兽文件，并通过 data 动态绑定避免静态路径被错误哈希化。
+const MASCOT_IMAGE = '/static/home/bronze-beast.png'
+
 export default {
   components: {
     BottomNav
@@ -174,6 +195,8 @@ export default {
     return {
       loading: false,
       loggedIn: false,
+      // 仅用于页面标题装饰，不参与任何个人中心业务逻辑。
+      mascotImage: MASCOT_IMAGE,
       userInfo: {},
       recentOrders: [],
       inheritorApplication: {},
@@ -770,5 +793,567 @@ export default {
   font-size: 28rpx;
   font-weight: 700;
   color: #b53d35;
+}
+</style>
+
+<style lang="scss" scoped>
+/*
+ * “我的”页面绿色主题覆盖。
+ * 仅修改布局、色彩、边框、阴影和字体，不修改模板中的点击事件或脚本业务逻辑。
+ * 色值与首页保持同源，后续若调整品牌色可在本段变量中统一修改。
+ */
+$profile-green: #087d79;
+$profile-deep: #285f5c;
+$profile-ink: #24423f;
+$profile-muted: #67817a;
+$profile-paper: rgba(249, 252, 242, 0.94);
+$profile-line: rgba(38, 105, 97, 0.22);
+$profile-pale: #dcebd1;
+
+/* 页面背景使用与首页一致的浅绿渐变和轻微纸张纹理，并为固定导航预留空间。 */
+.profile-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 0 0 calc(154rpx + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.82) 0, transparent 28%),
+    linear-gradient(180deg, #edf4e8 0%, #f5f7ef 52%, #edf3e7 100%);
+  color: $profile-ink;
+}
+
+.profile-page::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(45deg, rgba(35, 105, 96, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(35, 105, 96, 0.04) 25%, transparent 25%);
+  background-size: 20rpx 20rpx;
+  content: '';
+  pointer-events: none;
+}
+
+/* 页面所有内容位于纹理层上方；底部导航组件自身仍使用其固定层级。 */
+.safe-top,
+.profile-heading,
+.profile-hero,
+.section-card {
+  position: relative;
+  z-index: 1;
+}
+
+/* 标题区域沿用首页“居中中文标题 + 英文小字 + 青铜兽”的品牌表达。 */
+.profile-heading {
+  height: 144rpx;
+  margin: 0 32rpx 18rpx;
+  text-align: center;
+}
+
+.profile-heading-en {
+  display: block;
+  color: rgba(40, 95, 92, 0.58);
+  font-family: Georgia, serif;
+  font-size: 14rpx;
+  letter-spacing: 7rpx;
+}
+
+.profile-heading-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 11rpx;
+  color: $profile-green;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 42rpx;
+  font-weight: 600;
+  letter-spacing: 9rpx;
+}
+
+.profile-heading-title::before,
+.profile-heading-title::after {
+  width: 48rpx;
+  height: 1rpx;
+  margin: 0 18rpx;
+  background: $profile-green;
+  box-shadow: 7rpx -6rpx 0 -0.5rpx rgba(8, 125, 121, 0.45), -7rpx 6rpx 0 -0.5rpx rgba(8, 125, 121, 0.45);
+  content: '';
+}
+
+.profile-heading-mascot {
+  position: absolute;
+  right: -9rpx;
+  bottom: -31rpx;
+  z-index: 3;
+  width: 111rpx;
+  height: 132rpx;
+  pointer-events: none;
+}
+
+/*
+ * 个人信息主卡：浅色玉纹背景和双层边框替换旧暖棕色卡片。
+ * overflow 保持可见，使标题区青铜兽可以自然压住卡片右上角。
+ */
+.profile-hero {
+  margin: 0 32rpx 24rpx;
+  padding: 32rpx 27rpx 27rpx;
+  overflow: visible;
+  border: 1rpx solid $profile-line;
+  border-radius: 22rpx;
+  background:
+    radial-gradient(ellipse at 100% 0, rgba(151, 201, 163, 0.42), transparent 43%),
+    linear-gradient(145deg, rgba(250, 253, 244, 0.98), rgba(224, 241, 215, 0.93));
+  box-shadow: 0 9rpx 22rpx rgba(61, 101, 71, 0.12);
+}
+
+.profile-hero::after {
+  position: absolute;
+  right: 18rpx;
+  bottom: 15rpx;
+  width: 218rpx;
+  height: 87rpx;
+  border: 2rpx solid rgba(38, 135, 112, 0.11);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.hero-top,
+.hero-user,
+.hero-name-row,
+.hero-actions,
+.order-head,
+.order-meta {
+  display: flex;
+  align-items: center;
+}
+
+.hero-top,
+.order-head,
+.order-meta {
+  justify-content: space-between;
+}
+
+.hero-top {
+  gap: 20rpx;
+}
+
+.hero-user {
+  min-width: 0;
+  flex: 1;
+}
+
+.hero-avatar {
+  width: 112rpx;
+  height: 112rpx;
+  margin-right: 22rpx;
+  flex-shrink: 0;
+  border: 6rpx double rgba(40, 95, 92, 0.72);
+  border-radius: 50%;
+  background: #f8fbf2;
+  box-shadow: 0 7rpx 16rpx rgba(48, 94, 75, 0.14);
+}
+
+.hero-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.hero-name-row {
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.hero-name {
+  color: $profile-ink;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 37rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.inheritor-mark {
+  padding: 6rpx 14rpx;
+  border: 1rpx solid rgba(107, 89, 47, 0.3);
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #8b815e, #c9b986);
+  color: #fffbe9;
+  font-size: 18rpx;
+  box-shadow: none;
+}
+
+.hero-meta,
+.hero-tip {
+  display: block;
+  margin-top: 8rpx;
+  color: $profile-muted;
+  font-size: 21rpx;
+  line-height: 1.5;
+}
+
+.hero-tip {
+  color: #667b53;
+}
+
+.hero-status {
+  flex-shrink: 0;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.18);
+  border-radius: 999rpx;
+  background: rgba(244, 249, 237, 0.78);
+  color: $profile-deep;
+  font-size: 19rpx;
+}
+
+/* 订单统计保持原来的三个数据字段，只改变为通透的三栏玉色统计。 */
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rpx;
+  margin-top: 28rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(39, 106, 97, 0.14);
+  border-radius: 15rpx;
+  background: rgba(39, 106, 97, 0.14);
+}
+
+.stat-item {
+  padding: 18rpx 10rpx;
+  border-radius: 0;
+  background: rgba(248, 251, 242, 0.9);
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  color: $profile-green;
+  font-family: Georgia, serif;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 5rpx;
+  color: $profile-muted;
+  font-size: 19rpx;
+}
+
+/* 操作按钮保留三项原功能，统一为青绿色描边胶囊。 */
+.hero-actions {
+  position: relative;
+  z-index: 2;
+  gap: 12rpx;
+  margin-top: 22rpx;
+}
+
+.action-pill {
+  min-width: 0;
+  flex: 1;
+  justify-content: center;
+  padding: 11rpx 8rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.2);
+  border-radius: 999rpx;
+  background: rgba(232, 243, 222, 0.8);
+  color: $profile-deep;
+  font-size: 20rpx;
+}
+
+.action-pill.secondary,
+.action-pill.ghost {
+  background: rgba(250, 252, 245, 0.76);
+  color: $profile-deep;
+}
+
+/* 各业务分区统一成白绿色纸张卡片，标题样式与首页栏目标题呼应。 */
+.section-card {
+  margin: 22rpx 32rpx;
+  padding: 26rpx;
+  border: 1rpx solid rgba(64, 118, 91, 0.17);
+  border-radius: 19rpx;
+  background: $profile-paper;
+  box-shadow: 0 7rpx 17rpx rgba(61, 101, 71, 0.09);
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid rgba(44, 112, 102, 0.12);
+}
+
+.section-title {
+  color: $profile-green;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 31rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.section-note {
+  color: $profile-muted;
+  font-size: 19rpx;
+}
+
+/* 认证卡突出身份申请信息，但状态文字与点击逻辑仍由原脚本控制。 */
+.inheritor-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 22rpx;
+  border: 1rpx solid rgba(71, 126, 93, 0.18);
+  border-radius: 15rpx;
+  background:
+    radial-gradient(ellipse at 100% 100%, rgba(174, 211, 166, 0.4), transparent 48%),
+    linear-gradient(135deg, #f8fbed, #e8f3dc);
+}
+
+.inheritor-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.inheritor-title {
+  display: block;
+  color: $profile-ink;
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.inheritor-desc {
+  display: block;
+  margin-top: 8rpx;
+  color: $profile-muted;
+  font-size: 20rpx;
+  line-height: 1.6;
+}
+
+.inheritor-badge {
+  min-width: 106rpx;
+  padding: 10rpx 14rpx;
+  flex-shrink: 0;
+  border-radius: 999rpx;
+  font-size: 19rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.badge-empty,
+.badge-pending {
+  background: rgba(221, 234, 196, 0.9);
+  color: $profile-deep;
+}
+
+.badge-success {
+  background: rgba(57, 139, 90, 0.14);
+  color: #28794c;
+}
+
+.badge-danger {
+  background: rgba(178, 74, 60, 0.12);
+  color: #9e4439;
+}
+
+/*
+ * 常用入口由两列改为四列，更接近首页“六大体系”的入口语言。
+ * 入口名称和说明文字仍完整保留，图标继续使用 quickActions 中的原字符。
+ */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24rpx 8rpx;
+}
+
+.quick-card {
+  min-width: 0;
+  padding: 4rpx 2rpx 8rpx;
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+}
+
+.quick-icon {
+  display: inline-flex;
+  width: 72rpx;
+  height: 68rpx;
+  align-items: center;
+  justify-content: center;
+  -webkit-clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  background: linear-gradient(145deg, #4d8273, $profile-deep);
+  color: #f7faec;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 28rpx;
+  font-weight: 600;
+  filter: drop-shadow(0 4rpx 4rpx rgba(32, 91, 77, 0.13));
+}
+
+.quick-name {
+  display: block;
+  margin-top: 11rpx;
+  overflow: hidden;
+  color: $profile-deep;
+  font-size: 20rpx;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-note {
+  display: -webkit-box;
+  min-height: 39rpx;
+  margin-top: 5rpx;
+  overflow: hidden;
+  color: #789088;
+  font-size: 15rpx;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* 互动概览继续展示报名、帖子、收藏三个原有统计值。 */
+.interaction-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+
+.interaction-card {
+  padding: 22rpx 8rpx;
+  border: 1rpx solid rgba(58, 116, 93, 0.15);
+  border-radius: 14rpx;
+  background: linear-gradient(150deg, #fbfdf5, #eaf4e0);
+  text-align: center;
+}
+
+.interaction-value {
+  display: block;
+  color: $profile-green;
+  font-family: Georgia, serif;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.interaction-label {
+  display: block;
+  margin-top: 7rpx;
+  color: $profile-muted;
+  font-size: 19rpx;
+}
+
+/* 最近订单每一条成为独立浅色卡片，字段内容、数量和状态映射保持不变。 */
+.order-card {
+  margin-top: 13rpx;
+  padding: 20rpx;
+  border: 1rpx solid rgba(54, 112, 91, 0.13);
+  border-radius: 13rpx;
+  background: linear-gradient(145deg, rgba(253, 254, 249, 0.98), rgba(237, 246, 228, 0.88));
+}
+
+.order-card:first-child {
+  margin-top: 0;
+  padding-top: 20rpx;
+  border-top: 1rpx solid rgba(54, 112, 91, 0.13);
+}
+
+.order-head,
+.order-meta {
+  gap: 12rpx;
+}
+
+.order-no {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: $profile-muted;
+  font-size: 20rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.order-status {
+  color: $profile-green;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.order-product {
+  display: block;
+  margin: 12rpx 0;
+  color: $profile-ink;
+  font-size: 25rpx;
+  line-height: 1.5;
+}
+
+.order-meta {
+  color: #789088;
+  font-size: 19rpx;
+}
+
+/* 登录、空订单按钮沿用原事件，只覆盖成当前绿色主题。 */
+.profile-page .primary-button,
+.profile-page .secondary-button {
+  height: 76rpx;
+  border: 1rpx solid rgba(40, 95, 92, 0.22);
+  border-radius: 999rpx;
+  background: $profile-deep;
+  color: #f9fbed;
+  font-size: 25rpx;
+}
+
+.profile-page .secondary-button {
+  background: #f7faef;
+  color: $profile-deep;
+}
+
+.empty-block {
+  padding: 38rpx 16rpx;
+  color: $profile-muted;
+  font-size: 22rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.compact-empty {
+  padding-top: 12rpx;
+}
+
+.empty-button {
+  margin-top: 20rpx;
+}
+
+/* 退出登录保留原确认弹窗，仅弱化为页面末尾的危险操作入口。 */
+.logout-card {
+  padding: 0;
+  overflow: hidden;
+  background: rgba(250, 252, 245, 0.76);
+}
+
+.logout-button {
+  padding: 24rpx;
+  color: #9c5147;
+  font-size: 24rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* 小屏设备降低入口文字尺寸，确保四列入口不挤压或换行错位。 */
+@media screen and (max-width: 350px) {
+  .profile-heading-mascot {
+    width: 96rpx;
+    height: 114rpx;
+  }
+
+  .quick-name {
+    font-size: 18rpx;
+  }
+
+  .quick-note {
+    font-size: 14rpx;
+  }
 }
 </style>
