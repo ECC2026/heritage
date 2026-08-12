@@ -223,6 +223,38 @@
         <content-state v-else type="empty" message="本周暂无可预约手作课程" />
       </view>
 
+      <view class="home-section service-section">
+        <view class="section-head">
+          <view>
+            <view class="section-title">生态服务</view>
+            <view class="section-subtitle">康养陪伴、民俗演艺等预约体验</view>
+          </view>
+          <text class="section-note" @click="goServiceList">全部服务 →</text>
+        </view>
+        <view class="service-quick-grid">
+          <view class="service-quick-card" @click="goServiceList">
+            <text class="service-quick-icon">康</text>
+            <text class="service-quick-name">康养陪伴</text>
+            <text class="service-quick-note">预约慢节奏陪伴服务</text>
+          </view>
+          <view class="service-quick-card" @click="goServiceList">
+            <text class="service-quick-icon">演</text>
+            <text class="service-quick-name">民俗演艺</text>
+            <text class="service-quick-note">预约现场演艺场次</text>
+          </view>
+          <view class="service-quick-card" @click="goMyBookings">
+            <text class="service-quick-icon">约</text>
+            <text class="service-quick-name">我的预约</text>
+            <text class="service-quick-note">查看与取消预约</text>
+          </view>
+          <view class="service-quick-card" @click="goCooperation">
+            <text class="service-quick-icon">合</text>
+            <text class="service-quick-name">B端合作</text>
+            <text class="service-quick-note">文旅、定制、活动合作</text>
+          </view>
+        </view>
+      </view>
+
       <view class="home-section product-section">
         <view class="section-head">
           <view>
@@ -501,6 +533,15 @@ export default {
     },
     goNewsList() {
       uni.navigateTo({ url: '/pages/news/list' })
+    },
+    goServiceList() {
+      uni.navigateTo({ url: '/pages/service/list' })
+    },
+    goMyBookings() {
+      uni.navigateTo({ url: '/pages/service/my-bookings' })
+    },
+    goCooperation() {
+      uni.navigateTo({ url: '/pages/cooperation/index' })
     },
     handleUnavailable(pageName) {
       uni.showToast({
@@ -1120,6 +1161,46 @@ export default {
 .activity-bottom {
   color: $ichip-color-muted;
   font-size: $ichip-font-caption;
+}
+
+.service-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $ichip-space-3;
+}
+
+.service-quick-card {
+  padding: $ichip-space-3;
+  border-radius: $ichip-radius-sm;
+  background: rgba(250, 247, 241, 0.72);
+  border: 1rpx solid $ichip-color-line;
+}
+
+.service-quick-icon {
+  display: inline-flex;
+  width: 56rpx;
+  height: 56rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  background: $ichip-color-brand;
+  color: #fff;
+  font-size: 24rpx;
+}
+
+.service-quick-name {
+  display: block;
+  margin-top: 12rpx;
+  color: $ichip-color-ink;
+  font-size: 26rpx;
+  font-weight: $ichip-weight-medium;
+}
+
+.service-quick-note {
+  display: block;
+  margin-top: 6rpx;
+  color: $ichip-color-muted;
+  font-size: 20rpx;
 }
 
 .product-grid {

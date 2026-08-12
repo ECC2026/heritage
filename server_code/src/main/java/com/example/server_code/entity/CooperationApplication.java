@@ -5,32 +5,31 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 
+/**
+ * B端合作申请。
+ * status: 0-待处理, 1-已联系, 2-已完成, 3-已关闭
+ */
 @Data
-@TableName("product")
-public class Product {
+@TableName("cooperation_application")
+public class CooperationApplication {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String name;
-    private String cover;
-    private String images;
-    private String description;
-    private Long categoryId;
-    private Long productSystemId;
-    private BigDecimal price;
-    private BigDecimal originalPrice;
-    private Integer stock;
-    private Integer sales;
+    private String companyName;
+    private String contactName;
+    private String contactPhone;
+    private String cooperationType;
+    private String requirement;
     private Integer status;
-    private Integer isRecommend;
+    private String remark;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
     @TableField(exist = false)
-    private String category;
+    private String cooperationTypeText;
 
     @TableField(exist = false)
-    private String productSystem;
+    private String statusText;
 }

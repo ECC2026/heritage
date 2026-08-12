@@ -1,0 +1,9 @@
+# Claude Code 本地配置
+.claude/
+
+# 嵌套仓库（heritage 是独立 git 仓库，不纳入本仓库）
+heritage/
+
+# 会话任务文档（不入库）
+in.md
+mission.md

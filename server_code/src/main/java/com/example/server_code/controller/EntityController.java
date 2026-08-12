@@ -35,6 +35,7 @@ public class EntityController {
     @Autowired private PerformanceMapper performanceMapper;
     @Autowired private ActivityMapper activityMapper;
     @Autowired private CategoryMapper categoryMapper;
+    @Autowired private ProductSystemMapper productSystemMapper;
     @Autowired private JwtUtil jwtUtil;
     
     // ==================== 用户管理 ====================
@@ -393,19 +394,23 @@ public class EntityController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Integer status) {
-        
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Long productSystemId) {
+
         Page<Product> pageParam = new Page<>(page, size);
         QueryWrapper<Product> wrapper = new QueryWrapper<>();
         wrapper.orderByDesc("create_time");
-        
+
         if (name != null && !name.isEmpty()) {
             wrapper.like("name", name);
         }
         if (status != null) {
             wrapper.eq("status", status);
         }
-        
+        if (productSystemId != null) {
+            wrapper.eq("product_system_id", productSystemId);
+        }
+
         Page<Product> result = productMapper.selectPage(pageParam, wrapper);
         result.getRecords().forEach(this::normalizeProduct);
         
@@ -761,12 +766,17 @@ public class EntityController {
     }
 
     private void normalizeProduct(Product product) {
-        if (product.getCategoryId() == null) {
-            return;
+        if (product.getCategoryId() != null) {
+            Category category = categoryMapper.selectById(product.getCategoryId());
+            if (category != null) {
+                product.setCategory(category.getName());
+            }
         }
-        Category category = categoryMapper.selectById(product.getCategoryId());
-        if (category != null) {
-            product.setCategory(category.getName());
+        if (product.getProductSystemId() != null) {
+            ProductSystem productSystem = productSystemMapper.selectById(product.getProductSystemId());
+            if (productSystem != null) {
+                product.setProductSystem(productSystem.getName());
+            }
         }
     }
 

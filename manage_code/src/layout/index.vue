@@ -109,7 +109,10 @@ const menuGroups = [
     items: [
       { path: '/news', label: '非遗资讯', icon: Collection },
       { path: '/performances', label: '非遗演出', icon: Tickets },
-      { path: '/banners', label: '轮播图管理', icon: Picture }
+      { path: '/banners', label: '轮播图管理', icon: Picture },
+      { path: '/product-systems', label: '产品体系', icon: Collection },
+      { path: '/services', label: '服务管理', icon: Tickets },
+      { path: '/cooperations', label: '合作申请', icon: Collection }
     ]
   },
   {

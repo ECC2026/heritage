@@ -5,41 +5,38 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import java.time.LocalDateTime;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * 业务服务（康养陪伴 / 民俗演艺等）。
+ * 与 Spring 的 Service 注解语义不同，因此命名为 BusinessService。
+ */
 @Data
-@TableName("activity")
-public class Activity {
+@TableName("business_service")
+public class BusinessService {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String name;
-    private String cover;
-    private String description;
-    private String location;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private Long organizerId;
-    private String organizerName;
     private Long productSystemId;
-    private Integer limitCount;
-    private Integer signupCount;
+    private String cover;
+    private String images;
+    private String summary;
+    private String description;
+    private String providerName;
+    private String location;
+    private BigDecimal price;
+    private String unit;
     private Integer status;
-    private Integer type;
+    private Integer sort;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
     @TableField(exist = false)
-    private String title;
-
-    @TableField(exist = false)
-    private Integer maxParticipants;
-
-    @TableField(exist = false)
-    private String statusText;
-
-    @TableField(exist = false)
-    private String organizer;
-
-    @TableField(exist = false)
     private String productSystem;
+
+    @TableField(exist = false)
+    private List<BusinessServiceSchedule> schedules;
 }

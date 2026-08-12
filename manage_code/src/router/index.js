@@ -11,6 +11,9 @@ export const dashboardChildren = [
   { path: 'activities', name: 'Activities', component: () => import('../views/activities/index.vue'), meta: { title: '活动管理' } },
   { path: 'signups', name: 'Signups', component: () => import('../views/signups/index.vue'), meta: { title: '报名审核' } },
   { path: 'banners', name: 'Banners', component: () => import('../views/banners/index.vue'), meta: { title: '轮播图管理' } },
+  { path: 'product-systems', name: 'ProductSystems', component: () => import('../views/product-systems/index.vue'), meta: { title: '产品体系' } },
+  { path: 'services', name: 'Services', component: () => import('../views/services/index.vue'), meta: { title: '服务管理' } },
+  { path: 'cooperations', name: 'Cooperations', component: () => import('../views/cooperations/index.vue'), meta: { title: '合作申请' } },
   { path: 'settings', name: 'Settings', component: () => import('../views/settings/index.vue'), meta: { title: '系统设置' } }
 ]
 

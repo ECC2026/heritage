@@ -343,3 +343,74 @@ export function applyInheritor(data) {
     data
   })
 }
+
+// 产品体系列表（启用中）
+export function getProductSystems(params = {}) {
+  return request({
+    url: '/product-systems',
+    data: params
+  })
+}
+
+// 服务列表
+export function getServices(params) {
+  return request({
+    url: '/services',
+    data: params
+  })
+}
+
+// 服务详情
+export function getServiceDetail(id) {
+  return request({
+    url: `/services/${id}`
+  })
+}
+
+// 服务可用场次
+export function getServiceSchedules(id) {
+  return request({
+    url: `/services/${id}/schedules`
+  })
+}
+
+// 预约服务
+export function bookService(id, data) {
+  return request({
+    url: `/services/${id}/bookings`,
+    method: 'POST',
+    data
+  })
+}
+
+// 我的服务预约
+export function getMyServiceBookings(params = {}) {
+  return request({
+    url: '/service-bookings/my',
+    data: params
+  })
+}
+
+// 取消服务预约
+export function cancelServiceBooking(id) {
+  return request({
+    url: `/service-bookings/${id}/cancel`,
+    method: 'POST'
+  })
+}
+
+// 获取B端合作类型
+export function getCooperationTypes() {
+  return request({
+    url: '/cooperations/types'
+  })
+}
+
+// 提交B端合作申请
+export function submitCooperationApplication(data) {
+  return request({
+    url: '/cooperations/applications',
+    method: 'POST',
+    data
+  })
+}

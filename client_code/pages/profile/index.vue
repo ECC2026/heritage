@@ -194,6 +194,7 @@ export default {
         { key: 'favorites', label: '我的收藏', note: '沉淀感兴趣内容', icon: '藏' },
         { key: 'inheritor', label: '传承人认证', note: '提交资料申请审核', icon: '承' },
         { key: 'cart', label: '购物车', note: '整理待下单商品', icon: '购' },
+        { key: 'bookings', label: '我的预约', note: '管理服务预约', icon: '约' },
         { key: 'activities', label: '文化活动', note: '报名线下体验', icon: '活' },
         { key: 'news', label: '最新资讯', note: '关注非遗动态', icon: '讯' }
       ]
@@ -333,6 +334,14 @@ export default {
       }
       if (key === 'inheritor') {
         this.goToInheritor()
+        return
+      }
+      if (key === 'bookings') {
+        if (!this.loggedIn) {
+          this.goToLogin()
+          return
+        }
+        uni.navigateTo({ url: '/pages/service/my-bookings' })
         return
       }
       if (key === 'activities') {

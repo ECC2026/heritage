@@ -5,32 +5,27 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 
+/**
+ * 业务服务场次（一期仅基础场次，无复杂排班）。
+ */
 @Data
-@TableName("product")
-public class Product {
+@TableName("business_service_schedule")
+public class BusinessServiceSchedule {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String name;
-    private String cover;
-    private String images;
-    private String description;
-    private Long categoryId;
-    private Long productSystemId;
-    private BigDecimal price;
-    private BigDecimal originalPrice;
-    private Integer stock;
-    private Integer sales;
+    private Long serviceId;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private Integer capacity;
+    private Integer bookedCount;
     private Integer status;
-    private Integer isRecommend;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
+    /** 剩余可预约人数（capacity - bookedCount），不入库。 */
     @TableField(exist = false)
-    private String category;
-
-    @TableField(exist = false)
-    private String productSystem;
+    private Integer remaining;
 }

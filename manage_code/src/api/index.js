@@ -31,3 +31,12 @@ export * from './modules/banner'
 
 // 上传相关
 export * from './modules/upload'
+
+// 产品体系相关
+export * from './modules/productSystem'
+
+// 服务相关
+export * from './modules/service'
+
+// 合作申请相关
+export * from './modules/cooperation'
