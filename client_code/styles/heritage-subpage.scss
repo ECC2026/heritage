@@ -1,0 +1,163 @@
+/*
+ * “我的”常用入口二级页共享视觉主题。
+ *
+ * 使用约束：
+ * 1. 页面根节点添加 heritage-subpage；
+ * 2. 页面 scoped style 中显式 @import 本文件；
+ * 3. 本文件只定义视觉规则，不包含业务状态、事件或路由逻辑。
+ *
+ * 色板与首页保持一致，集中维护可以避免订单、报名、收藏等页面重复复制样式。
+ */
+$heritage-page-bg: #edf3e7;
+$heritage-green: #087d79;
+$heritage-deep: #285f5c;
+$heritage-ink: #24423f;
+$heritage-muted: #66807a;
+$heritage-line: rgba(36, 105, 97, 0.22);
+$heritage-card: rgba(249, 252, 242, 0.94);
+$heritage-danger: #a85446;
+
+/* 首页同款浅绿宣纸渐变，并统一移除旧页面的棕色背景。 */
+.heritage-subpage {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 16% 9%, rgba(255, 255, 255, 0.8) 0, rgba(255, 255, 255, 0) 25%),
+    linear-gradient(180deg, #eef4e8 0%, #f5f7ef 52%, $heritage-page-bg 100%);
+  color: $heritage-ink;
+}
+
+/* 细纹理只做装饰且不接收触控，避免遮挡表单、卡片或按钮。 */
+.heritage-subpage::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(45deg, rgba(34, 102, 94, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(34, 102, 94, 0.04) 25%, transparent 25%);
+  background-size: 20rpx 20rpx;
+  content: '';
+  pointer-events: none;
+}
+
+/* 页面业务容器统一位于纹理层上方。 */
+.heritage-subpage .hero-card,
+.heritage-subpage .section-card,
+.heritage-subpage .button-row,
+.heritage-subpage .cart-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* 共享内容卡覆盖 App.vue 中旧的米棕色卡片。 */
+.heritage-subpage .section-card {
+  margin: 24rpx;
+  padding: 26rpx 24rpx;
+  border: 1rpx solid $heritage-line;
+  border-radius: 20rpx;
+  background: rgba(249, 252, 242, 0.9);
+  box-shadow: 0 7rpx 20rpx rgba(63, 102, 74, 0.1);
+}
+
+/* 购物车和资讯使用的顶部介绍卡统一为淡山水色块，不加入青铜兽。 */
+.heritage-subpage .hero-card {
+  margin: 8rpx 24rpx 24rpx;
+  overflow: hidden;
+  padding: 28rpx;
+  border: 1rpx solid $heritage-line;
+  border-radius: 20rpx;
+  background:
+    radial-gradient(circle at 86% 90%, rgba(127, 180, 165, 0.25), transparent 31%),
+    linear-gradient(145deg, rgba(249, 252, 242, 0.96), rgba(220, 235, 209, 0.9));
+  box-shadow: 0 8rpx 22rpx rgba(63, 102, 74, 0.11);
+}
+
+.heritage-subpage .section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 22rpx;
+}
+
+/* 标题左侧短线延续首页、商城、活动和搜索页的统一语言。 */
+.heritage-subpage .section-title {
+  position: relative;
+  padding-left: 24rpx;
+  color: $heritage-green;
+  font-family: "STKaiti", "KaiTi", "STSong", serif;
+  font-size: 31rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
+}
+
+.heritage-subpage .section-title::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 14rpx;
+  height: 3rpx;
+  border-radius: 3rpx;
+  background: $heritage-green;
+  content: '';
+}
+
+.heritage-subpage .section-note {
+  color: $heritage-muted;
+  font-size: 20rpx;
+}
+
+/* 筛选、状态和轻操作统一使用青绿色胶囊。 */
+.heritage-subpage .soft-pill {
+  border: 1rpx solid rgba(46, 110, 100, 0.15);
+  background: rgba(220, 235, 209, 0.62);
+  color: $heritage-deep;
+}
+
+.heritage-subpage .filter-pill.active {
+  border-color: $heritage-green;
+  background: $heritage-green;
+  color: #f7fbf1;
+  box-shadow: 0 5rpx 12rpx rgba(8, 125, 121, 0.16);
+}
+
+/* 主按钮与次按钮只替换视觉，disabled/loading 仍由页面原属性控制。 */
+.heritage-subpage .primary-button {
+  background: linear-gradient(135deg, $heritage-green 0%, #3c9a86 100%);
+  color: #fff;
+  box-shadow: 0 6rpx 15rpx rgba(8, 125, 121, 0.16);
+}
+
+.heritage-subpage .secondary-button {
+  border-color: $heritage-line;
+  background: rgba(249, 252, 242, 0.92);
+  color: $heritage-deep;
+}
+
+.heritage-subpage .primary-button[disabled],
+.heritage-subpage .secondary-button[disabled] {
+  opacity: 0.62;
+  box-shadow: none;
+}
+
+/* 空状态保留原文案和条件，仅统一颜色与容器质感。 */
+.heritage-subpage .empty-block {
+  color: $heritage-muted;
+}
+
+/* 认证表单的输入控件改为浅绿纸面，所有 v-model 和校验逻辑保持在原页面。 */
+.heritage-subpage .field-label {
+  color: $heritage-ink;
+}
+
+.heritage-subpage .field-input,
+.heritage-subpage .field-textarea,
+.heritage-subpage .field-picker {
+  box-sizing: border-box;
+  border-color: rgba(36, 105, 97, 0.16);
+  background: rgba(250, 252, 244, 0.92);
+  color: $heritage-ink;
+}

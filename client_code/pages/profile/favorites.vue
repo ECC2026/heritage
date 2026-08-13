@@ -1,6 +1,7 @@
 <template>
-  <view class="app-page favorites-page" style="margin-top: 20px;">
-    <page-header title="我的收藏" />
+  <!-- 共享主题不影响收藏筛选、详情跳转或取消收藏请求。 -->
+  <view class="app-page heritage-subpage favorites-page">
+    <page-header title="我的收藏" variant="green" />
 
     <view class="section-card summary-card">
       <view class="section-head">
@@ -142,12 +143,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/heritage-subpage.scss";
+
 .favorites-page {
-  padding: 24rpx;
-  padding-bottom: 48rpx;
-  background:
-    radial-gradient(circle at top right, rgba(166, 71, 45, 0.14), transparent 30%),
-    linear-gradient(180deg, #f8efe7 0%, #f4f1ec 100%);
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
 }
 
 .filter-row {
@@ -157,27 +156,31 @@ export default {
 }
 
 .filter-pill.active {
-  background: #a6472d;
-  color: #fff;
+  border-color: $heritage-green;
+  background: $heritage-green;
+  color: #f7fbf1;
 }
 
 .favorite-card {
   display: flex;
   gap: 18rpx;
-  padding: 24rpx 0;
-  border-top: 1rpx solid #f0e1d8;
+  margin-top: 16rpx;
+  padding: 16rpx;
+  border: 1rpx solid rgba(75, 122, 98, 0.18);
+  border-radius: 15rpx;
+  background: $heritage-card;
+  box-shadow: 0 4rpx 11rpx rgba(70, 106, 76, 0.08);
 }
 
 .favorite-card:first-child {
-  padding-top: 0;
-  border-top: none;
+  margin-top: 0;
 }
 
 .favorite-cover {
   width: 176rpx;
   height: 176rpx;
-  border-radius: 20rpx;
-  background: #f1e4d7;
+  border-radius: 11rpx;
+  background: linear-gradient(150deg, #eaf2ef, #bad5d0);
   flex-shrink: 0;
 }
 
@@ -189,9 +192,10 @@ export default {
   display: inline-flex;
   padding: 8rpx 16rpx;
   border-radius: 999rpx;
-  background: #f5e6dc;
+  border: 1rpx solid rgba(8, 125, 121, 0.13);
+  background: rgba(220, 235, 209, 0.66);
   font-size: 22rpx;
-  color: #a6472d;
+  color: $heritage-deep;
 }
 
 .favorite-title {
@@ -199,7 +203,7 @@ export default {
   margin-top: 12rpx;
   font-size: 30rpx;
   font-weight: 700;
-  color: #2f1f18;
+  color: $heritage-ink;
   line-height: 1.5;
 }
 
@@ -210,7 +214,7 @@ export default {
   margin-top: 10rpx;
   font-size: 22rpx;
   line-height: 1.6;
-  color: #8e7064;
+  color: $heritage-muted;
 }
 
 .favorite-actions {
@@ -226,6 +230,6 @@ export default {
 }
 
 .action-pill.danger {
-  color: #b24a3c;
+  color: $heritage-danger;
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
-  <view class="app-page orders-page" style="margin-top: 20px;">
-    <page-header title="我的订单" />
+  <!-- heritage-subpage 只启用共享绿色主题，不参与订单筛选或状态更新。 -->
+  <view class="app-page heritage-subpage orders-page">
+    <page-header title="我的订单" variant="green" />
 
     <view class="section-card summary-card">
       <view class="section-head">
@@ -174,12 +175,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/heritage-subpage.scss";
+
 .orders-page {
-  padding: 24rpx;
-  padding-bottom: 48rpx;
-  background:
-    radial-gradient(circle at top right, rgba(166, 71, 45, 0.14), transparent 28%),
-    linear-gradient(180deg, #f8efe7 0%, #f4f1ec 100%);
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
 }
 
 .summary-grid {
@@ -190,23 +189,24 @@ export default {
 
 .summary-item {
   padding: 22rpx 12rpx;
-  border-radius: 22rpx;
+  border: 1rpx solid rgba(36, 105, 97, 0.15);
+  border-radius: 16rpx;
   text-align: center;
-  background: linear-gradient(180deg, #fff9f4 0%, #f7ede4 100%);
+  background: linear-gradient(180deg, #fbfdf6 0%, #e8f2de 100%);
 }
 
 .summary-value {
   display: block;
   font-size: 34rpx;
   font-weight: 700;
-  color: #2f1f18;
+  color: $heritage-green;
 }
 
 .summary-label {
   display: block;
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: #8e6d61;
+  color: $heritage-muted;
 }
 
 .filter-row {
@@ -217,17 +217,22 @@ export default {
 }
 
 .filter-pill.active {
-  background: #a6472d;
-  color: #fff;
+  border-color: $heritage-green;
+  background: $heritage-green;
+  color: #f7fbf1;
 }
 
 .order-card {
-  padding: 24rpx 0;
-  border-top: 1rpx solid #f0e1d8;
+  margin-top: 16rpx;
+  padding: 20rpx;
+  border: 1rpx solid rgba(75, 122, 98, 0.18);
+  border-radius: 15rpx;
+  background: $heritage-card;
+  box-shadow: 0 4rpx 11rpx rgba(70, 106, 76, 0.08);
 }
 
 .order-card:first-child {
-  border-top: none;
+  margin-top: 0;
 }
 
 .order-head,
@@ -240,19 +245,19 @@ export default {
 .order-no {
   flex: 1;
   font-size: 24rpx;
-  color: #7f6357;
+  color: $heritage-muted;
 }
 
 .order-status {
   font-size: 22rpx;
-  color: #a6472d;
+  color: $heritage-green;
 }
 
 .order-title {
   display: block;
   margin-top: 12rpx;
   font-size: 28rpx;
-  color: #2c1d18;
+  color: $heritage-ink;
   line-height: 1.6;
 }
 
@@ -260,14 +265,14 @@ export default {
   display: block;
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: #9b7d71;
+  color: $heritage-muted;
   line-height: 1.6;
 }
 
 .order-meta {
   margin-top: 12rpx;
   font-size: 22rpx;
-  color: #9b7d71;
+  color: $heritage-muted;
 }
 
 .order-actions {
@@ -280,7 +285,7 @@ export default {
   padding: 10rpx 28rpx;
   font-size: 24rpx;
   color: #fff;
-  background: #a6472d;
+  background: $heritage-green;
   border: none;
   border-radius: 32rpx;
   line-height: 1.5;

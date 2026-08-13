@@ -1,6 +1,7 @@
 <template>
-  <view class="app-page signups-page" style="margin-top: 20px;">
-    <page-header title="我的报名" />
+  <!-- 共享主题只改变展示；报名查询、详情跳转和取消报名事件均保持原实现。 -->
+  <view class="app-page heritage-subpage signups-page">
+    <page-header title="我的报名" variant="green" />
 
     <view class="section-card summary-card">
       <view class="section-head">
@@ -155,12 +156,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/heritage-subpage.scss";
+
 .signups-page {
-  padding: 24rpx;
-  padding-bottom: 48rpx;
-  background:
-    radial-gradient(circle at top right, rgba(166, 71, 45, 0.14), transparent 30%),
-    linear-gradient(180deg, #f8efe7 0%, #f4f1ec 100%);
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
 }
 
 .summary-grid {
@@ -171,42 +170,46 @@ export default {
 
 .summary-item {
   padding: 22rpx 12rpx;
-  border-radius: 22rpx;
+  border: 1rpx solid rgba(36, 105, 97, 0.15);
+  border-radius: 16rpx;
   text-align: center;
-  background: linear-gradient(180deg, #fff9f4 0%, #f7ede4 100%);
+  background: linear-gradient(180deg, #fbfdf6 0%, #e8f2de 100%);
 }
 
 .summary-value {
   display: block;
   font-size: 34rpx;
   font-weight: 700;
-  color: #2f1f18;
+  color: $heritage-green;
 }
 
 .summary-label {
   display: block;
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: #8e6d61;
+  color: $heritage-muted;
 }
 
 .signup-card {
   display: flex;
   gap: 18rpx;
-  padding: 24rpx 0;
-  border-top: 1rpx solid #f0e1d8;
+  margin-top: 16rpx;
+  padding: 16rpx;
+  border: 1rpx solid rgba(75, 122, 98, 0.18);
+  border-radius: 15rpx;
+  background: $heritage-card;
+  box-shadow: 0 4rpx 11rpx rgba(70, 106, 76, 0.08);
 }
 
 .signup-card:first-child {
-  padding-top: 0;
-  border-top: none;
+  margin-top: 0;
 }
 
 .signup-cover {
   width: 180rpx;
   height: 180rpx;
-  border-radius: 20rpx;
-  background: #f1e4d7;
+  border-radius: 11rpx;
+  background: linear-gradient(150deg, #eaf2ef, #bad5d0);
   flex-shrink: 0;
 }
 
@@ -224,7 +227,7 @@ export default {
   flex: 1;
   font-size: 30rpx;
   font-weight: 700;
-  color: #2f1f18;
+  color: $heritage-ink;
 }
 
 .signup-status {
@@ -249,7 +252,7 @@ export default {
   margin-top: 10rpx;
   font-size: 22rpx;
   line-height: 1.6;
-  color: #8d7063;
+  color: $heritage-muted;
 }
 
 .signup-actions {
@@ -265,7 +268,7 @@ export default {
 }
 
 .action-pill.danger {
-  color: #b24a3c;
+  color: $heritage-danger;
 }
 
 .empty-button {

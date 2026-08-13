@@ -1,6 +1,7 @@
 <template>
-  <view class="app-page posts-page" style="margin-top: 20px;">
-    <page-header title="我的帖子" />
+  <!-- 共享主题仅更新 UI；帖子查询、删除确认和发布跳转均保持不变。 -->
+  <view class="app-page heritage-subpage posts-page">
+    <page-header title="我的帖子" variant="green" />
 
     <view class="section-card summary-card">
       <view class="section-head">
@@ -132,12 +133,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/heritage-subpage.scss";
+
 .posts-page {
-  padding: 24rpx;
-  padding-bottom: 48rpx;
-  background:
-    radial-gradient(circle at top left, rgba(166, 71, 45, 0.14), transparent 28%),
-    linear-gradient(180deg, #f8efe7 0%, #f4f1ec 100%);
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
 }
 
 .summary-row {
@@ -146,7 +145,7 @@ export default {
   align-items: center;
   gap: 16rpx;
   font-size: 24rpx;
-  color: #8c6d61;
+  color: $heritage-muted;
 }
 
 .mini-button {
@@ -156,13 +155,16 @@ export default {
 }
 
 .post-card {
-  padding: 24rpx 0;
-  border-top: 1rpx solid #f0e1d8;
+  margin-top: 16rpx;
+  padding: 20rpx;
+  border: 1rpx solid rgba(75, 122, 98, 0.18);
+  border-radius: 15rpx;
+  background: $heritage-card;
+  box-shadow: 0 4rpx 11rpx rgba(70, 106, 76, 0.08);
 }
 
 .post-card:first-child {
-  padding-top: 0;
-  border-top: none;
+  margin-top: 0;
 }
 
 .post-head {
@@ -175,19 +177,19 @@ export default {
   display: block;
   font-size: 30rpx;
   font-weight: 700;
-  color: #2f1f18;
+  color: $heritage-ink;
 }
 
 .post-meta {
   display: block;
   margin-top: 8rpx;
   font-size: 22rpx;
-  color: #8f7265;
+  color: $heritage-muted;
 }
 
 .post-delete {
   font-size: 22rpx;
-  color: #b24a3c;
+  color: $heritage-danger;
 }
 
 .post-content {
@@ -195,7 +197,7 @@ export default {
   margin-top: 16rpx;
   font-size: 28rpx;
   line-height: 1.7;
-  color: #5e493f;
+  color: #4e6660;
 }
 
 .post-images {
@@ -208,8 +210,8 @@ export default {
 .post-image {
   width: 188rpx;
   height: 188rpx;
-  border-radius: 18rpx;
-  background: #f0e5d8;
+  border-radius: 12rpx;
+  background: linear-gradient(150deg, #eaf2ef, #bad5d0);
 }
 
 .post-footer {
@@ -217,7 +219,7 @@ export default {
   gap: 24rpx;
   margin-top: 18rpx;
   font-size: 22rpx;
-  color: #8f7265;
+  color: $heritage-muted;
 }
 
 .empty-button {

@@ -81,7 +81,6 @@
     <view class="section-card quick-section">
       <view class="section-head">
         <text class="section-title">常用入口</text>
-        <text class="section-note">覆盖答辩演示主流程</text>
       </view>
       <view class="quick-grid">
         <view

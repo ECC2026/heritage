@@ -1,6 +1,7 @@
 <template>
-  <view class="app-page inheritor-page" style="margin-top: 20px;">
-    <page-header title="传承人认证" />
+  <!-- 共享主题只负责认证页外观；表单绑定、资料上传、校验和提交接口均保持原样。 -->
+  <view class="app-page heritage-subpage inheritor-page">
+    <page-header title="传承人认证" variant="green" />
 
     <view class="section-card status-card">
       <view class="section-head">
@@ -224,12 +225,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/heritage-subpage.scss";
+
 .inheritor-page {
-  padding: 24rpx;
-  padding-bottom: 48rpx;
-  background:
-    radial-gradient(circle at top left, rgba(166, 71, 45, 0.14), transparent 28%),
-    linear-gradient(180deg, #f8efe7 0%, #f4f1ec 100%);
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
 }
 
 .status-card {
@@ -243,24 +242,28 @@ export default {
 .status-pill {
   display: inline-flex;
   padding: 10rpx 20rpx;
+  border: 1rpx solid transparent;
   border-radius: 999rpx;
   font-size: 24rpx;
   font-weight: 600;
 }
 
 .status-pending {
-  background: rgba(197, 141, 26, 0.14);
+  border-color: rgba(178, 122, 18, 0.18);
+  background: rgba(197, 141, 26, 0.11);
   color: #b27a12;
 }
 
 .status-success {
-  background: rgba(46, 145, 82, 0.14);
-  color: #2e9152;
+  border-color: rgba(8, 125, 121, 0.18);
+  background: rgba(8, 125, 121, 0.1);
+  color: $heritage-green;
 }
 
 .status-danger {
-  background: rgba(178, 74, 60, 0.14);
-  color: #b24a3c;
+  border-color: rgba(168, 84, 70, 0.18);
+  background: rgba(168, 84, 70, 0.1);
+  color: $heritage-danger;
 }
 
 .status-line {
@@ -268,21 +271,27 @@ export default {
   margin-top: 12rpx;
   font-size: 24rpx;
   line-height: 1.7;
-  color: #8a6f62;
+  color: $heritage-muted;
+}
+
+/* 只调整表单控件间距和纸面质感，不改变任何 v-model 字段。 */
+.field-input,
+.field-textarea {
+  margin-bottom: 24rpx;
 }
 
 .certificate-block {
   margin-top: 8rpx;
-  border-radius: 24rpx;
   overflow: hidden;
-  background: #fff8f1;
-  border: 2rpx dashed rgba(166, 71, 45, 0.18);
+  border: 2rpx dashed rgba(36, 105, 97, 0.22);
+  border-radius: 18rpx;
+  background: rgba(245, 250, 238, 0.86);
 }
 
 .certificate-image {
   width: 100%;
   height: 320rpx;
-  background: #f1e4d7;
+  background: linear-gradient(150deg, #eaf2ef, #bad5d0);
 }
 
 .certificate-placeholder {
@@ -291,12 +300,12 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #8f7366;
+  color: $heritage-muted;
 }
 
 .certificate-plus {
   font-size: 52rpx;
-  color: #a6472d;
+  color: $heritage-green;
 }
 
 .certificate-text {

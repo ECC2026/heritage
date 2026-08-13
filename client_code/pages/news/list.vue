@@ -1,6 +1,7 @@
 <template>
-  <view class="app-page" style="margin-top: 20px;">
-    <page-header title="非遗资讯" />
+  <!-- 资讯页仅接入统一绿色视觉；资讯加载、下拉刷新和详情跳转保持原实现。 -->
+  <view class="app-page heritage-subpage news-page">
+    <page-header title="非遗资讯" variant="green" />
     <view class="hero-card news-hero">
       <view class="soft-pill">Heritage News</view>
       <view class="news-title">非遗资讯</view>
@@ -62,6 +63,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/heritage-subpage.scss";
+
+.news-page {
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
+}
+
 .news-hero {
   margin-top: 12rpx;
 }
@@ -70,36 +77,38 @@ export default {
   margin-top: 20rpx;
   font-size: 48rpx;
   font-weight: 700;
-  color: #34251f;
+  color: $heritage-green;
+  font-family: "STKaiti", "KaiTi", "STSong", serif;
+  letter-spacing: 5rpx;
 }
 
 .news-subtitle {
   margin-top: 14rpx;
   font-size: 26rpx;
   line-height: 1.7;
-  color: #8a7466;
+  color: $heritage-muted;
 }
 
+/* 资讯循环与点击事件不变，仅把旧分割线列表改为独立卡片。 */
 .news-card {
   display: flex;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid rgba(166, 71, 45, 0.08);
+  margin-top: 16rpx;
+  padding: 15rpx;
+  border: 1rpx solid rgba(75, 122, 98, 0.18);
+  border-radius: 15rpx;
+  background: $heritage-card;
+  box-shadow: 0 4rpx 11rpx rgba(70, 106, 76, 0.08);
 }
 
 .news-card:first-child {
-  padding-top: 0;
-}
-
-.news-card:last-child {
-  padding-bottom: 0;
-  border-bottom: none;
+  margin-top: 0;
 }
 
 .news-cover {
   width: 220rpx;
   height: 168rpx;
-  border-radius: 20rpx;
-  background: #f0e5d8;
+  border-radius: 11rpx;
+  background: linear-gradient(150deg, #eaf2ef, #bad5d0);
 }
 
 .news-content {
@@ -110,7 +119,7 @@ export default {
 .news-card-title {
   font-size: 30rpx;
   font-weight: 700;
-  color: #34251f;
+  color: $heritage-ink;
   line-height: 1.6;
 }
 
@@ -118,7 +127,7 @@ export default {
   margin-top: 12rpx;
   font-size: 24rpx;
   line-height: 1.7;
-  color: #7f6a5d;
+  color: $heritage-muted;
 }
 
 .news-meta {
@@ -126,6 +135,6 @@ export default {
   justify-content: space-between;
   margin-top: 14rpx;
   font-size: 22rpx;
-  color: #8a7466;
+  color: $heritage-green;
 }
 </style>
