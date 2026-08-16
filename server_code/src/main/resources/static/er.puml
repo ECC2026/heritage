@@ -1,0 +1,213 @@
+@startuml PetSystemER
+
+skinparam handwritten true
+skinparam backgroundColor #FFFFFF
+
+' 定义实体样式
+skinparam entity {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  FontName Microsoft YaHei
+  FontSize 12
+  AttributeFontSize 11
+  AttributeFontColor #1B5E20
+}
+
+' ===== 管理员表 =====
+entity "admin\n(管理员)" as admin {
+  * id : int <<PK>>
+  --
+  username : varchar(255)
+  password : varchar(25)
+  nickname : varchar(255)
+  avatar_url : varchar(255)
+  tel : varchar(255)
+  email : varchar(255)
+  status : varchar(128)
+  create_time : timestamp
+}
+
+' ===== 普通用户表 =====
+entity "user\n(普通用户)" as user {
+  * id : int <<PK>>
+  --
+  username : varchar(255)
+  password : varchar(255)
+  nickname : varchar(255)
+  avatar_url : varchar(255)
+  tel : varchar(255)
+  email : varchar(255)
+  status : varchar(255)
+  balance : float
+  create_time : timestamp
+}
+
+' ===== 宠物类型表 =====
+entity "pet_type\n(宠物类型)" as pet_type {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  remark : text
+  create_time : timestamp
+}
+
+' ===== 宠物信息表 =====
+entity "pet\n(宠物信息)" as pet {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  main_img : text
+  basic_info : text
+  create_time : timestamp
+}
+
+' ===== 宠物店长表 =====
+entity "pet_store_manager\n(宠物店长)" as pet_store_manager {
+  * id : int <<PK>>
+  --
+  username : varchar(255)
+  password : varchar(255)
+  nickname : varchar(255)
+  avatar_url : varchar(255)
+  tel : varchar(255)
+  email : varchar(255)
+  status : varchar(255)
+  store_name : varchar(255)
+  store_img : varchar(255)
+  store_address : varchar(255)
+  create_time : timestamp
+}
+
+' ===== 宠物日记表 =====
+entity "pet_diary\n(宠物日记)" as pet_diary {
+  * id : int <<PK>>
+  --
+  title : varchar(255)
+  content : text
+  create_time : timestamp
+}
+
+' ===== 求助信息表 =====
+entity "help_message\n(求助信息)" as help_message {
+  * id : int <<PK>>
+  --
+  title : varchar(255)
+  content : text
+  create_time : timestamp
+}
+
+' ===== 宠物喂养表 =====
+entity "pet_feed\n(宠物喂养)" as pet_feed {
+  * id : int <<PK>>
+  --
+  reserved_time : timestamp
+  remark : text
+  status : varchar(255)
+  create_time : timestamp
+}
+
+' ===== 宠物寄养表 =====
+entity "pet_foster_care\n(宠物寄养)" as pet_foster_care {
+  * id : int <<PK>>
+  --
+  reserved_start_time : timestamp
+  reserved_end_time : timestamp
+  remark : text
+  status : varchar(255)
+  create_time : timestamp
+}
+
+' ===== 商品表 =====
+entity "product\n(商品)" as product {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  main_img : text
+  introduce : text
+  status : varchar(255)
+  price : float
+  stock : int
+  sales_volume : int
+  create_time : timestamp
+}
+
+' ===== 商品订单表 =====
+entity "product_order\n(商品订单)" as product_order {
+  * id : int <<PK>>
+  --
+  price : float
+  name_of_consignee : varchar(255)
+  tel_of_consignee : varchar(255)
+  address_of_consignee : varchar(255)
+  create_time : timestamp
+  status : varchar(255)
+}
+
+' ===== 收货地址表 =====
+entity "shipping_address\n(收货地址)" as shipping_address {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  tel : varchar(255)
+  address : text
+  create_time : timestamp
+}
+
+' ===== 关系连线 =====
+' 用户 -> 宠物：一个用户拥有多个宠物
+user "1" --{ "N" pet : 拥有
+
+' 宠物类型 -> 宠物：一种类型包含多个宠物
+pet_type "1" --{ "N" pet : 分类
+
+' 用户 -> 宠物日记：一个用户撰写多个日记
+user "1" --{ "N" pet_diary : 撰写
+
+' 用户 -> 求助信息：一个用户发布多条求助
+user "1" --{ "N" help_message : 发布
+
+' 用户 -> 收货地址：一个用户有多个收货地址
+user "1" --{ "N" shipping_address : 管理
+
+' 用户 -> 商品订单：一个用户下多个订单
+user "1" --{ "N" product_order : 下单
+
+' 商品 -> 订单：一个商品被多个订单购买
+product "1" --{ "N" product_order : 包含
+
+' 宠物 -> 喂养记录：一个宠物多次喂养记录
+pet "1" --{ "N" pet_feed : 喂养记录
+
+' 店长 -> 喂养记录：一个店长处理多个喂养
+pet_store_manager "1" --{ "N" pet_feed : 处理
+
+' 宠物 -> 寄养记录：一个宠物多次寄养记录
+pet "1" --{ "N" pet_foster_care : 寄养记录
+
+' 店长 -> 寄养记录：一个店长处理多个寄养
+pet_store_manager "1" --{ "N" pet_foster_care : 处理
+
+' 宠物类型 -> 喂养记录：一种类型对应多条喂养
+pet_type "1" --{ "N" pet_feed : 类型
+
+' 宠物类型 -> 寄养记录：一种类型对应多条寄养
+pet_type "1" --{ "N" pet_foster_care : 类型
+
+' 用户 -> 喂养记录：记录喂养的用户
+user "1" --{ "N" pet_feed : 预约
+
+' 用户 -> 寄养记录：记录寄养的用户
+user "1" --{ "N" pet_foster_care : 预约
+
+' ===== 图例 =====
+legend right
+|= 符号 |= 含义 |
+|= <<PK>> |= 主键 (Primary Key) |
+|= --{ |= 一对多关系 (One-to-Many) |
+|= 1 |= 一端 |
+|= N |= 多端 |
+endlegend
+
+title 宠物系统 (Pet System) ER 图
+
+@enduml
